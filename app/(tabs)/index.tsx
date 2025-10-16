@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useChallenge } from '@/contexts/ChallengeContext';
 import { useHabits } from '@/contexts/HabitsContext';
+import { useUser } from '@/contexts/UserContext';
+import { Image } from 'expo-image';
 
 const getAllDaysInMonth = (selectedDate: Date, challengeData: any, isDayCompleted: (day: number) => boolean) => {
   const year = selectedDate.getFullYear();
@@ -15,7 +17,7 @@ const getAllDaysInMonth = (selectedDate: Date, challengeData: any, isDayComplete
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = new Date();
   
-  const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   return Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(year, month, i + 1);
@@ -151,6 +153,7 @@ export default function HomeScreen() {
   const daysScrollRef = useRef<ScrollView>(null);
   const { getCurrentDay, getDaysRemaining, getProgressPercentage, challengeData, startChallenge, resetChallenge, isDayCompleted, markDayCompleted, markDayIncomplete } = useChallenge();
   const { habits } = useHabits();
+  const { user } = useUser();
 
   const [habitsByDay, setHabitsByDay] = useState<Record<string, typeof habits>>({});
   
@@ -175,7 +178,6 @@ export default function HomeScreen() {
   const currentDayHabits = getHabitsForDay(selectedDay);
   
   const days = getAllDaysInMonth(selectedDate, challengeData, isDayCompleted);
-  const userName = "Gabriela";
   
   useEffect(() => {
     setHabitsByDay({});
@@ -256,30 +258,33 @@ export default function HomeScreen() {
       }
     }
   }, [currentDayHabits, challengeData.isActive, challengeData.startDate, selectedDay, selectedDate, isDayCompleted, markDayCompleted, markDayIncomplete, challengeData.challengeDays]);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
   
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <ThemedText type="title" style={styles.welcomeText}>
-              Welcome back, {userName}
+            <View style={styles.profileHeader}>
+              <Image
+                source={require('@/assets/images/avatar.jpg')}
+                style={styles.profileImage}
+              />
+              <View>
+            <ThemedText type="default" style={styles.greetingText}>
+              {getGreeting()}
             </ThemedText>
-            {challengeData.isActive && (
-              <View style={styles.challengeProgress}>
-                <ThemedText style={styles.challengeText}>
-                  Dia {getCurrentDay()} de {challengeData.challengeDays}
-                  {challengeData.completedDays.length > 0 && ` • ${challengeData.completedDays.length} completos`}
-                </ThemedText>
-                <View style={styles.progressBar}>
-                  <View 
-                    style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} 
-                  />
-                </View>
-                <ThemedText style={styles.daysRemaining}>
-                  {getDaysRemaining()} dias restantes
-                </ThemedText>
-              </View>
-            )}
+            <ThemedText type="title" style={styles.welcomeText}>
+              {user.name.split(' ')[0]}
+            </ThemedText>
+            </View>
+            </View>
+            
           </View>
           <TouchableOpacity 
             style={styles.addButton}
@@ -288,7 +293,22 @@ export default function HomeScreen() {
             <AntDesign name={challengeData.isActive ? "setting" : "plus"} size={24} color="white" />
           </TouchableOpacity>
         </View>
-
+{challengeData.isActive && (
+              <View style={styles.challengeProgress}>
+                <ThemedText style={styles.challengeText}>
+                  Day {getCurrentDay()} of {challengeData.challengeDays}
+                  {challengeData.completedDays.length > 0 && ` • ${challengeData.completedDays.length} completed`}
+                </ThemedText>
+                <View style={styles.progressBar}>
+                  <View 
+                    style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} 
+                  />
+                </View>
+                <ThemedText style={styles.daysRemaining}>
+                  {getDaysRemaining()} days remaining
+                </ThemedText>
+              </View>
+            )}
         <ThemedView style={styles.calendarContainer}>
           <View style={styles.monthHeader}>
             <TouchableOpacity 
@@ -296,7 +316,7 @@ export default function HomeScreen() {
               onPress={() => setShowMonthModal(true)}
             >
             <ThemedText type="subtitle" style={styles.monthTitle}>
-              {`${selectedDate.toLocaleDateString('pt-BR', { month: 'long' })}/${selectedDate.getFullYear()}`}
+              {`${selectedDate.toLocaleDateString('en-US', { month: 'long' })}/${selectedDate.getFullYear()}`}
             </ThemedText>
             
               <MaterialIcons name="keyboard-arrow-down" size={24} color={Colors.light.icon} />
@@ -330,7 +350,7 @@ export default function HomeScreen() {
         {challengeData.isActive ? (
           <ThemedView style={styles.habitsContainer}>
             <ThemedText type="subtitle" style={styles.habitsTitle}>
-              {selectedDay === new Date().getDate() ? 'Hábitos de Hoje' : `Hábitos do dia ${selectedDay}`}
+              {selectedDay === new Date().getDate() ? 'Today\'s Habits' : `Day ${selectedDay} Habits`}
             </ThemedText>
             
             <ScrollView 
@@ -352,18 +372,18 @@ export default function HomeScreen() {
           <ThemedView style={styles.habitsContainer}>
             <View style={styles.noChallengeContainer}>
               <ThemedText type="subtitle" style={styles.noChallengeTitle}>
-                🎯 Pronto para o desafio?
+                🎯 Ready for the challenge?
               </ThemedText>
               <ThemedText style={styles.noChallengeDescription}>
-                Inicie seu desafio de 75 dias e acompanhe seus hábitos diários. 
-                Transforme sua rotina e alcance seus objetivos!
+                Start your 75-day challenge and track your daily habits. 
+                Transform your routine and achieve your goals!
               </ThemedText>
               <TouchableOpacity
                 style={styles.startChallengeCtaButton}
                 onPress={() => setShowChallengeModal(true)}
               >
                 <ThemedText style={styles.startChallengeCtaText}>
-                  Começar Desafio
+                  Start Challenge
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -379,7 +399,7 @@ export default function HomeScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <ThemedText type="subtitle" style={styles.modalTitle}>
-                Selecionar Mês
+                Select Month
               </ThemedText>
               
               <ScrollView style={styles.monthList}>
@@ -395,7 +415,7 @@ export default function HomeScreen() {
                       }}
                     >
                       <ThemedText style={styles.monthItemText}>
-                        {`${date.toLocaleDateString('pt-BR', { month: 'long' })}/${date.getFullYear()}`}
+                        {`${date.toLocaleDateString('en-US', { month: 'long' })}/${date.getFullYear()}`}
                       </ThemedText>
                     </TouchableOpacity>
                   );
@@ -406,7 +426,7 @@ export default function HomeScreen() {
                 style={styles.modalCloseButton}
                 onPress={() => setShowMonthModal(false)}
               >
-                <ThemedText style={styles.modalCloseText}>Fechar</ThemedText>
+                <ThemedText style={styles.modalCloseText}>Close</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -421,14 +441,14 @@ export default function HomeScreen() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <ThemedText type="subtitle" style={styles.modalTitle}>
-                {challengeData.isActive ? 'Configurar Desafio' : 'Iniciar Desafio'}
+                {challengeData.isActive ? 'Configure Challenge' : 'Start Challenge'}
               </ThemedText>
               
               {!challengeData.isActive ? (
                 <View>
                   <ThemedText style={styles.challengeDescription}>
-                    Inicie seu desafio de {challengeData.challengeDays} dias! 
-                    Você pode acompanhar seu progresso e manter seus hábitos consistentemente.
+                    Start your {challengeData.challengeDays}-day challenge! 
+                    You can track your progress and maintain your habits consistently.
                   </ThemedText>
                   
                   <TouchableOpacity
@@ -439,30 +459,30 @@ export default function HomeScreen() {
                     }}
                   >
                     <ThemedText style={styles.startChallengeButtonText}>
-                      Começar Hoje
+                      Start Today
                     </ThemedText>
                   </TouchableOpacity>
                 </View>
               ) : (
                 <View>
                   <ThemedText style={styles.challengeDescription}>
-                    Desafio em andamento desde {challengeData.startDate?.toLocaleDateString('pt-BR')}
+                    Challenge in progress since {challengeData.startDate?.toLocaleDateString('en-US')}
                   </ThemedText>
                   
                   <View style={styles.challengeStats}>
                     <View style={styles.statItem}>
                       <ThemedText style={styles.statNumber}>{getCurrentDay()}</ThemedText>
-                      <ThemedText style={styles.statLabel}>Dia Atual</ThemedText>
+                      <ThemedText style={styles.statLabel}>Current Day</ThemedText>
                     </View>
                     
                     <View style={styles.statItem}>
                       <ThemedText style={styles.statNumber}>{getDaysRemaining()}</ThemedText>
-                      <ThemedText style={styles.statLabel}>Restantes</ThemedText>
+                      <ThemedText style={styles.statLabel}>Remaining</ThemedText>
                     </View>
                     
                     <View style={styles.statItem}>
                       <ThemedText style={styles.statNumber}>{Math.round(getProgressPercentage())}%</ThemedText>
-                      <ThemedText style={styles.statLabel}>Completo</ThemedText>
+                      <ThemedText style={styles.statLabel}>Complete</ThemedText>
                     </View>
                   </View>
                   
@@ -474,7 +494,7 @@ export default function HomeScreen() {
                     }}
                   >
                     <ThemedText style={styles.resetChallengeButtonText}>
-                      Finalizar Desafio
+                      Finish Challenge
                     </ThemedText>
                   </TouchableOpacity>
                 </View>
@@ -484,7 +504,7 @@ export default function HomeScreen() {
                 style={styles.modalCloseButton}
                 onPress={() => setShowChallengeModal(false)}
               >
-                <ThemedText style={styles.modalCloseText}>Fechar</ThemedText>
+                <ThemedText style={styles.modalCloseText}>Close</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -510,11 +530,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 8,
+  },
+  greetingText: {
+    color: Colors.light.gray,
   },
   welcomeText: {
     fontSize: 24,
-    fontWeight: 'bold',
   },
   addButton: {
     backgroundColor: Colors.light.tint,
@@ -745,8 +767,18 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
   },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
   challengeProgress: {
-    marginTop: 8,
+    paddingHorizontal: 20,
   },
   challengeText: {
     fontSize: 14,
