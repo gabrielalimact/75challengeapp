@@ -22,11 +22,11 @@ const HabitsContext = createContext<HabitsContextType | undefined>(undefined);
 const STORAGE_KEY = '@75challenge_habits';
 
 const DEFAULT_HABITS: Habit[] = [
-  { id: 1, icon: 'water-outline', name: 'Beber 2L de água', isCompleted: false },
-  { id: 2, icon: 'barbell-outline', name: 'Fazer exercício', isCompleted: false },
-  { id: 3, icon: 'book-outline', name: 'Ler por 30 min', isCompleted: false },
-  { id: 4, icon: 'moon-outline', name: 'Dormir 8 horas', isCompleted: false },
-  { id: 5, icon: 'restaurant-outline', name: 'Comer saudável', isCompleted: false },
+  { id: 1, icon: 'water-outline', name: 'Drink 2L of water', isCompleted: false },
+  { id: 2, icon: 'barbell-outline', name: 'Exercise', isCompleted: false },
+  { id: 3, icon: 'book-outline', name: 'Read for 30 min', isCompleted: false },
+  { id: 4, icon: 'moon-outline', name: 'Sleep 8 hours', isCompleted: false },
+  { id: 5, icon: 'restaurant-outline', name: 'Eat healthy', isCompleted: false },
 ];
 
 export const HabitsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -39,7 +39,7 @@ export const HabitsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setHabits(JSON.parse(storedHabits));
       }
     } catch (error) {
-      console.error('Erro ao carregar hábitos:', error);
+      console.error('Error loading habits:', error);
     }
   }, []);
 
@@ -51,7 +51,7 @@ export const HabitsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
     } catch (error) {
-      console.error('Erro ao salvar hábitos:', error);
+      console.error('Error saving habits:', error);
     }
   }, [habits]);
 
