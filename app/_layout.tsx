@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ChallengeProvider } from '@/contexts/ChallengeContext';
 import { HabitsProvider } from '@/contexts/HabitsContext';
+import { UserProvider } from '@/contexts/UserContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
@@ -17,9 +18,10 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ChallengeProvider>
-      <HabitsProvider>
-        <SafeAreaProvider>
+    <UserProvider>
+      <ChallengeProvider>
+        <HabitsProvider>
+          <SafeAreaProvider>
           <View style={styles.container}>
             <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
               <Stack
@@ -33,8 +35,9 @@ export default function RootLayout() {
             </ThemeProvider>
           </View>
         </SafeAreaProvider>
-      </HabitsProvider>
-    </ChallengeProvider>
+        </HabitsProvider>
+      </ChallengeProvider>
+    </UserProvider>
   );
 }
 
