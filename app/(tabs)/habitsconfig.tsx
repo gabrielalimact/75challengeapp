@@ -9,22 +9,22 @@ import { Colors } from '@/constants/theme';
 import { useHabits, type Habit } from '@/contexts/HabitsContext';
 
 const HABIT_ICONS = [
-  { name: 'water-outline', label: 'Água' },
-  { name: 'barbell-outline', label: 'Exercício' },
-  { name: 'book-outline', label: 'Leitura' },
-  { name: 'moon-outline', label: 'Sono' },
-  { name: 'restaurant-outline', label: 'Alimentação' },
-  { name: 'walk-outline', label: 'Caminhada' },
-  { name: 'bicycle-outline', label: 'Bicicleta' },
-  { name: 'musical-notes-outline', label: 'Música' },
-  { name: 'leaf-outline', label: 'Meditação' },
-  { name: 'sunny-outline', label: 'Sol' },
-  { name: 'heart-outline', label: 'Saúde' },
-  { name: 'time-outline', label: 'Tempo' },
+  { name: 'water-outline', label: 'Water' },
+  { name: 'barbell-outline', label: 'Exercise' },
+  { name: 'book-outline', label: 'Reading' },
+  { name: 'moon-outline', label: 'Sleep' },
+  { name: 'restaurant-outline', label: 'Nutrition' },
+  { name: 'walk-outline', label: 'Walking' },
+  { name: 'bicycle-outline', label: 'Cycling' },
+  { name: 'musical-notes-outline', label: 'Music' },
+  { name: 'leaf-outline', label: 'Meditation' },
+  { name: 'sunny-outline', label: 'Sunlight' },
+  { name: 'heart-outline', label: 'Health' },
+  { name: 'time-outline', label: 'Time' },
 ];
 
 export default function HabitsConfigScreen() {
-  const { habits, addHabit, updateHabit, deleteHabit, toggleHabit } = useHabits();
+  const { habits, addHabit, updateHabit, deleteHabit } = useHabits();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
@@ -35,7 +35,7 @@ export default function HabitsConfigScreen() {
     try {
       setHabitName(text);
     } catch (error) {
-      console.error('Erro ao alterar texto:', error);
+      console.error('Error changing text:', error);
     }
   };
 
@@ -48,7 +48,7 @@ export default function HabitsConfigScreen() {
 
   const saveHabit = () => {
     if (!habitName.trim()) {
-      Alert.alert('Erro', 'Por favor, digite um nome para o hábito');
+      Alert.alert('Error', 'Please enter a name for the habit');
       return;
     }
 
@@ -74,7 +74,7 @@ export default function HabitsConfigScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <ThemedText type="title" style={styles.headerTitle}>
-          Configurar Hábitos
+          Configure Habits
         </ThemedText>
         <TouchableOpacity style={styles.addButton} onPress={openAddModal}>
           <AntDesign name="plus" size={24} color="white" />
@@ -82,7 +82,7 @@ export default function HabitsConfigScreen() {
       </View>
 
       <ThemedView style={styles.habitsContainer}>
-        <ThemedText style={styles.sectionTitle}>Meus Hábitos ({habits.length})</ThemedText>
+        <ThemedText style={styles.sectionTitle}>My Habits ({habits.length})</ThemedText>
         
         <ScrollView 
           style={styles.habitsList}
@@ -118,11 +118,11 @@ export default function HabitsConfigScreen() {
                   style={styles.deleteButton}
                   onPress={() => {
                     Alert.alert(
-                      'Excluir Hábito',
-                      `Tem certeza que deseja excluir "${habit.name}"?`,
+                      'Delete Habit',
+                      `Are you sure you want to delete "${habit.name}"?`,
                       [
-                        { text: 'Cancelar', style: 'cancel' },
-                        { text: 'Excluir', style: 'destructive', onPress: () => deleteHabit(habit.id) }
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Delete', style: 'destructive', onPress: () => deleteHabit(habit.id) }
                       ]
                     );
                   }}
@@ -147,16 +147,16 @@ export default function HabitsConfigScreen() {
         >
           <View style={styles.modalContent}>
             <ThemedText type="subtitle" style={styles.modalTitle}>
-              Novo Hábito
+              {editingHabit ? 'Edit Habit' : 'New Habit'}
             </ThemedText>
             
             <View style={styles.inputContainer}>
-              <ThemedText style={styles.inputLabel}>Nome do hábito:</ThemedText>
+              <ThemedText style={styles.inputLabel}>Habit name:</ThemedText>
               <TextInput
                 style={styles.textInput}
                 value={habitName}
                 onChangeText={handleTextChange}
-                placeholder="Ex: Beber água, Fazer exercício..."
+                placeholder="E.g: Drink water, Exercise..."
                 placeholderTextColor="#999"
                 maxLength={50}
                 autoCorrect={false}
@@ -169,7 +169,7 @@ export default function HabitsConfigScreen() {
             </View>
 
             <View style={styles.iconSelector}>
-              <ThemedText style={styles.sectionTitle}>Escolha um ícone:</ThemedText>
+              <ThemedText style={styles.sectionTitle}>Choose an icon:</ThemedText>
               <View style={styles.iconsGrid}>
                 {HABIT_ICONS.map((iconItem) => (
                   <TouchableOpacity
@@ -195,14 +195,16 @@ export default function HabitsConfigScreen() {
                 style={styles.cancelButton}
                 onPress={() => setShowAddModal(false)}
               >
-                <ThemedText style={styles.cancelButtonText}>Cancelar</ThemedText>
+                <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
               </TouchableOpacity>
               
               <TouchableOpacity
                 style={styles.saveButton}
                 onPress={saveHabit}
               >
-                <ThemedText style={styles.saveButtonText}>Adicionar</ThemedText>
+                <ThemedText style={styles.saveButtonText}>
+                  {editingHabit ? 'Update' : 'Add'}
+                </ThemedText>
               </TouchableOpacity>
             </View>
           </View>
