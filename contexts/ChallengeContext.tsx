@@ -33,7 +33,6 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     completedDays: [],
   });
 
-  // Carregar dados do AsyncStorage quando o app iniciar
   useEffect(() => {
     loadChallengeData();
   }, []);
@@ -92,13 +91,11 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const today = new Date();
     const startDate = new Date(challengeData.startDate);
     
-    // Zerar as horas para comparar apenas as datas
     today.setHours(0, 0, 0, 0);
     startDate.setHours(0, 0, 0, 0);
     
     const diffTime = today.getTime() - startDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 porque o primeiro dia é o dia 1
-    
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return Math.max(0, Math.min(diffDays, challengeData.challengeDays));
   };
 

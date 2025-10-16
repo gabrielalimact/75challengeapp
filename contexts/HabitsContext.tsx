@@ -21,7 +21,6 @@ const HabitsContext = createContext<HabitsContextType | undefined>(undefined);
 
 const STORAGE_KEY = '@75challenge_habits';
 
-// Hábitos padrão
 const DEFAULT_HABITS: Habit[] = [
   { id: 1, icon: 'water-outline', name: 'Beber 2L de água', isCompleted: false },
   { id: 2, icon: 'barbell-outline', name: 'Fazer exercício', isCompleted: false },
@@ -33,7 +32,6 @@ const DEFAULT_HABITS: Habit[] = [
 export const HabitsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [habits, setHabits] = useState<Habit[]>(DEFAULT_HABITS);
 
-  // Carregar hábitos do AsyncStorage
   const loadHabits = useCallback(async () => {
     try {
       const storedHabits = await AsyncStorage.getItem(STORAGE_KEY);
@@ -57,7 +55,6 @@ export const HabitsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [habits]);
 
-  // Salvar hábitos sempre que mudarem
   useEffect(() => {
     saveHabits();
   }, [saveHabits]);

@@ -23,7 +23,6 @@ const getAllDaysInMonth = (selectedDate: Date, challengeData: any, isDayComplete
     const isToday = i + 1 === today.getDate() && month === today.getMonth() && year === today.getFullYear();
     const isFuture = date > today && !isToday;
     
-    // Calcular se este dia faz parte do desafio
     let challengeDay = 0;
     let isInChallenge = false;
     let isCompleted = false;
@@ -42,10 +41,8 @@ const getAllDaysInMonth = (selectedDate: Date, challengeData: any, isDayComplete
         challengeDay = diffDays + 1;
         isInChallenge = true;
         
-        // Verificar se este dia do desafio está completo
         isCompleted = isDayCompleted(challengeDay);
       } else if (diffDays < 0) {
-        // Dias anteriores ao início do desafio ficam disabled
         isDisabled = true;
       }
     }
@@ -81,24 +78,22 @@ const DayCircle = ({ day, dayName, isDisabled, isCompleted, isSelected, isFuture
       style={[
         styles.dayContainer,
         isCompleted && styles.dayContainerCompleted,
-        isSelected && styles.dayContainerToday, // Dia selecionado usa estilo do "hoje"
+        isSelected && styles.dayContainerToday,
         isDisabled && styles.dayContainerDisabled,
         { opacity: isFuture ? 0.5 : isDisabled ? 0.3 : 1 }
       ]}
       onPress={isDisabled ? undefined : onSelect}
       disabled={isDisabled}
     >
-      {/* Nome do dia da semana */}
       <ThemedText style={[
         styles.dayNameText,
         isCompleted && styles.dayNameTextCompleted,
-        isSelected && styles.dayNameTextToday, // Dia selecionado usa estilo do "hoje"
+        isSelected && styles.dayNameTextToday,
         isDisabled && styles.dayNameTextDisabled,
       ]}>
         {dayName}
       </ThemedText>
       
-      {/* Indicador do dia do desafio */}
       {isInChallenge && challengeDay && (
         <View style={styles.challengeIndicatorContainer}>
           <ThemedText style={styles.challengeDayIndicator}>
@@ -108,11 +103,10 @@ const DayCircle = ({ day, dayName, isDisabled, isCompleted, isSelected, isFuture
         </View>
       )}
       
-      {/* Número do dia */}
       <ThemedText style={[
         styles.dayText,
         isCompleted && styles.dayTextCompleted,
-        isSelected && styles.dayTextToday, // Dia selecionado usa estilo do "hoje"
+        isSelected && styles.dayTextToday,
         isDisabled && styles.dayTextDisabled,
       ]}>
         {day}
@@ -125,12 +119,10 @@ const HabitItem = ({ icon, name, isCompleted, onToggle }: { icon: string, name: 
   return (
     <TouchableOpacity style={styles.habitCard} onPress={onToggle}>
       <View style={styles.habitContent}>
-        {/* Ícone do hábito */}
         <View style={styles.habitIconContainer}>
           <Ionicons name={icon as any} size={24} color={Colors.light.tint} />
         </View>
         
-        {/* Nome do hábito */}
         <ThemedText style={[
           styles.habitName,
           isCompleted && styles.habitNameCompleted
@@ -139,7 +131,6 @@ const HabitItem = ({ icon, name, isCompleted, onToggle }: { icon: string, name: 
         </ThemedText>
       </View>
       
-      {/* Checkbox circular */}
       <TouchableOpacity style={[
         styles.habitCheckbox,
         isCompleted && styles.habitCheckboxCompleted
@@ -154,58 +145,48 @@ const HabitItem = ({ icon, name, isCompleted, onToggle }: { icon: string, name: 
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(new Date().getDate()); // Dia selecionado
+  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
   const [showMonthModal, setShowMonthModal] = useState(false);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const daysScrollRef = useRef<ScrollView>(null);
   const { getCurrentDay, getDaysRemaining, getProgressPercentage, challengeData, startChallenge, resetChallenge, isDayCompleted, markDayCompleted, markDayIncomplete } = useChallenge();
   const { habits } = useHabits();
 
-  // Estado para armazenar hábitos por dia (chave: "YYYY-MM-DD")
   const [habitsByDay, setHabitsByDay] = useState<Record<string, typeof habits>>({});
   
-  // Função para obter a chave do dia no formato YYYY-MM-DD
   const getDayKey = (date: Date) => {
     return date.toISOString().split('T')[0];
   };
 
-  // Função para criar uma cópia independente dos hábitos do contexto
   const createFreshHabits = () => {
     return habits.map(habit => ({ ...habit, isCompleted: false }));
   };
 
-  // Função para obter hábitos de um dia específico
   const getHabitsForDay = (day: number) => {
     const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
     const dayKey = getDayKey(date);
     
     if (!habitsByDay[dayKey]) {
-      // Se não existem hábitos para este dia, criar uma cópia independente dos hábitos base
       return createFreshHabits();
     }
     return habitsByDay[dayKey];
   };
 
-  // Hábitos do dia selecionado
   const currentDayHabits = getHabitsForDay(selectedDay);
   
   const days = getAllDaysInMonth(selectedDate, challengeData, isDayCompleted);
-  const userName = "Gabriela"; // Depois você pode pegar de um contexto ou estado global
+  const userName = "Gabriela";
   
-  // Sincronizar hábitos quando mudarem no contexto
   useEffect(() => {
-    // Reset todos os dias quando os hábitos mudarem
     setHabitsByDay({});
   }, [habits]);
 
-  // Centralizar no dia de hoje quando a tela carregar ou o mês mudar
   useEffect(() => {
     const todayIndex = days.findIndex(day => day.isToday);
     if (todayIndex !== -1 && daysScrollRef.current) {
-      // Aguardar um pouco para garantir que o layout foi renderizado
       setTimeout(() => {
-        const dayWidth = 62; // Largura do dayContainer (50) + gap (12)
-        const screenWidth = 350; // Largura aproximada da tela
+        const dayWidth = 62;
+        const screenWidth = 350;
         const scrollToX = Math.max(0, (todayIndex * dayWidth) - (screenWidth / 2) + (dayWidth / 2));
         
         daysScrollRef.current?.scrollTo({
@@ -216,7 +197,6 @@ export default function HomeScreen() {
     }
   }, [days]);
 
-  // Centralizar no dia selecionado quando ele mudar
   useEffect(() => {
     const selectedIndex = days.findIndex(day => day.day === selectedDay);
     if (selectedIndex !== -1 && daysScrollRef.current) {
@@ -252,7 +232,6 @@ export default function HomeScreen() {
     });
   };
 
-  // Verificar se todos os hábitos estão completos e marcar o dia como completo
   useEffect(() => {
     if (!challengeData.isActive || !challengeData.startDate) return;
 
@@ -265,17 +244,14 @@ export default function HomeScreen() {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const challengeDay = diffDays + 1;
     
-    // Só considerar dias válidos do desafio
     if (challengeDay >= 1 && challengeDay <= challengeData.challengeDays) {
       const dayHabits = currentDayHabits;
       const allHabitsCompleted = dayHabits.length > 0 && dayHabits.every(habit => habit.isCompleted);
       const isDayCurrentlyCompleted = isDayCompleted(challengeDay);
       
       if (allHabitsCompleted && !isDayCurrentlyCompleted) {
-        // Todos os hábitos estão completos, marcar o dia como completo
         markDayCompleted(challengeDay);
       } else if (!allHabitsCompleted && isDayCurrentlyCompleted) {
-        // Nem todos os hábitos estão completos, desmarcar o dia
         markDayIncomplete(challengeDay);
       }
     }
@@ -283,7 +259,6 @@ export default function HomeScreen() {
   
   return (
     <SafeAreaView style={styles.container}>
-        {/* Header com Welcome e botão + */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <ThemedText type="title" style={styles.welcomeText}>
@@ -314,7 +289,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Scroll horizontal dos dias do mês */}
         <ThemedView style={styles.calendarContainer}>
           <View style={styles.monthHeader}>
             <TouchableOpacity 
@@ -353,7 +327,6 @@ export default function HomeScreen() {
           </ScrollView>
         </ThemedView>
 
-        {/* Listagem de hábitos - só mostra se o desafio estiver ativo */}
         {challengeData.isActive ? (
           <ThemedView style={styles.habitsContainer}>
             <ThemedText type="subtitle" style={styles.habitsTitle}>
@@ -397,7 +370,6 @@ export default function HomeScreen() {
           </ThemedView>
         )}
 
-        {/* Modal de seleção de mês */}
         <Modal
           visible={showMonthModal}
           transparent={true}
@@ -440,7 +412,6 @@ export default function HomeScreen() {
           </View>
         </Modal>
 
-        {/* Modal de configuração do desafio */}
         <Modal
           visible={showChallengeModal}
           transparent={true}
@@ -531,7 +502,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 130, // Espaço para a bottom bar
+    paddingBottom: 130,
   },
   header: {
     flexDirection: 'row',
@@ -657,7 +628,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#4CAF50',
   },
-  // Estilos do modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -703,7 +673,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  // Estilos dos hábitos
   habitsContainer: {
     paddingHorizontal: 20,
     marginTop: 24,
@@ -773,7 +742,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     borderColor: Colors.light.tint,
   },
-  // Estilos do desafio
   headerLeft: {
     flex: 1,
   },
@@ -801,7 +769,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  // Estilos do modal de desafio
   challengeDescription: {
     fontSize: 16,
     color: '#333',
@@ -854,7 +821,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  // Estilos para quando não há desafio ativo
   noChallengeContainer: {
     flex: 1,
     paddingHorizontal: 20,

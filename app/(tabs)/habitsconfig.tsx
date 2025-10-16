@@ -8,7 +8,6 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useHabits, type Habit } from '@/contexts/HabitsContext';
 
-// Lista de ícones disponíveis para os hábitos
 const HABIT_ICONS = [
   { name: 'water-outline', label: 'Água' },
   { name: 'barbell-outline', label: 'Exercício' },
