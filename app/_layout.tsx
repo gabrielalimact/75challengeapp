@@ -8,26 +8,27 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ChallengeProvider } from '@/contexts/ChallengeContext';
 import { HabitsProvider } from '@/contexts/HabitsContext';
 import { UserProvider } from '@/contexts/UserContext';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <UserProvider>
       <ChallengeProvider>
         <HabitsProvider>
           <SafeAreaProvider>
           <View style={styles.container}>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <ThemeProvider value={DefaultTheme}>
               <Stack
                 screenOptions={{
                   contentStyle: { backgroundColor: '#edece4' },
                 }}>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="welcome" options={{ headerShown: false }} />
+                <Stack.Screen name="login" options={{ headerShown: false }} />
+                <Stack.Screen name="signup" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
                 <Stack.Screen name="settings/edit-profile" options={{ headerShown: false }} />
@@ -35,7 +36,7 @@ export default function RootLayout() {
                 <Stack.Screen name="settings/privacy" options={{ headerShown: false }} />
                 <Stack.Screen name="settings/about" options={{ headerShown: false }} />
               </Stack>
-              <StatusBar style="auto" />
+              <StatusBar style="dark" />
             </ThemeProvider>
           </View>
         </SafeAreaProvider>
@@ -48,6 +49,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#edece4',
   },
 });
