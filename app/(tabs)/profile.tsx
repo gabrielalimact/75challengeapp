@@ -192,6 +192,18 @@ export default function ProfileScreen() {
           </View>
           <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
         </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push('/welcome')}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="log-out-outline" size={20} color={Colors.light.dangerColor} />
+            <ThemedText style={[styles.settingText, {
+               color: Colors.light.dangerColor
+            }]}>Logout</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.dangerColor} />
+        </TouchableOpacity>
         </View>
       </View>
     </ParallaxScrollView>
