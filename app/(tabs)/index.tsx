@@ -1,149 +1,21 @@
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ChallengeModal from '@/components/challenge-modal';
+import DayCircle from '@/components/day-circle';
+import HabitItem from '@/components/habit-item';
+import MonthSelectorModal from '@/components/month-selector-modal';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useChallenge } from '@/contexts/ChallengeContext';
 import { useHabits } from '@/contexts/HabitsContext';
 import { useUser } from '@/contexts/UserContext';
+import { getAllDaysInMonth } from '@/utils';
 import { Image } from 'expo-image';
-
-const getAllDaysInMonth = (selectedDate: Date, challengeData: any, isDayCompleted: (day: number) => boolean) => {
-  const year = selectedDate.getFullYear();
-  const month = selectedDate.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  return Array.from({ length: daysInMonth }, (_, i) => {
-    const date = new Date(year, month, i + 1);
-    const dayOfWeek = date.getDay();
-    const isToday = i + 1 === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-    const isFuture = date > today && !isToday;
-    
-    let challengeDay = 0;
-    let isInChallenge = false;
-    let isCompleted = false;
-    let isDisabled = false;
-    
-    if (challengeData.isActive && challengeData.startDate) {
-      const startDate = new Date(challengeData.startDate);
-      startDate.setHours(0, 0, 0, 0);
-      const checkDate = new Date(date);
-      checkDate.setHours(0, 0, 0, 0);
-      
-      const diffTime = checkDate.getTime() - startDate.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays >= 0 && diffDays < challengeData.challengeDays) {
-        challengeDay = diffDays + 1;
-        isInChallenge = true;
-        
-        isCompleted = isDayCompleted(challengeDay);
-      } else if (diffDays < 0) {
-        isDisabled = true;
-      }
-    }
-    
-    return {
-      day: i + 1,
-      dayName: dayNames[dayOfWeek],
-      isToday: isToday,
-      isFuture: isFuture,
-      isCompleted: isCompleted,
-      date: date,
-      challengeDay: challengeDay,
-      isInChallenge: isInChallenge,
-      isDisabled: isDisabled,
-    };
-  });
-};
-
-const DayCircle = ({ day, dayName, isDisabled, isCompleted, isSelected, isFuture, challengeDay, isInChallenge, onSelect }: { 
-  day: number, 
-  dayName: string, 
-  isDisabled: boolean, 
-  isCompleted: boolean,
-  isSelected: boolean,
-  isFuture: boolean,
-  challengeDay?: number,
-  isInChallenge?: boolean,
-  onSelect: () => void
-}) => {
-
-  return (
-    <TouchableOpacity 
-      style={[
-        styles.dayContainer,
-        isCompleted && styles.dayContainerCompleted,
-        isSelected && styles.dayContainerToday,
-        isDisabled && styles.dayContainerDisabled,
-        { opacity: isFuture ? 0.5 : isDisabled ? 0.3 : 1 }
-      ]}
-      onPress={isDisabled ? undefined : onSelect}
-      disabled={isDisabled}
-    >
-      <ThemedText style={[
-        styles.dayNameText,
-        isCompleted && styles.dayNameTextCompleted,
-        isSelected && styles.dayNameTextToday,
-        isDisabled && styles.dayNameTextDisabled,
-      ]}>
-        {dayName}
-      </ThemedText>
-      
-      {isInChallenge && challengeDay && (
-        <View style={styles.challengeIndicatorContainer}>
-          <ThemedText style={styles.challengeDayIndicator}>
-            D{challengeDay}
-          </ThemedText>
-
-        </View>
-      )}
-      
-      <ThemedText style={[
-        styles.dayText,
-        isCompleted && styles.dayTextCompleted,
-        isSelected && styles.dayTextToday,
-        isDisabled && styles.dayTextDisabled,
-      ]}>
-        {day}
-      </ThemedText>
-    </TouchableOpacity>
-  );
-};
-
-const HabitItem = ({ icon, name, isCompleted, onToggle }: { icon: string, name: string, isCompleted: boolean, onToggle: () => void }) => {
-  return (
-    <TouchableOpacity style={styles.habitCard} onPress={onToggle}>
-      <View style={styles.habitContent}>
-        <View style={styles.habitIconContainer}>
-          <Ionicons name={icon as any} size={24} color={Colors.light.tint} />
-        </View>
-        
-        <ThemedText style={[
-          styles.habitName,
-          isCompleted && styles.habitNameCompleted
-        ]}>
-          {name}
-        </ThemedText>
-      </View>
-      
-      <TouchableOpacity style={[
-        styles.habitCheckbox,
-        isCompleted && styles.habitCheckboxCompleted
-      ]} onPress={onToggle}>
-        {isCompleted && (
-          <Ionicons name="checkmark" size={16} color="white" />
-        )}
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
-};
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -272,7 +144,7 @@ export default function HomeScreen() {
           <View style={styles.headerLeft}>
             <View style={styles.profileHeader}>
               <Image
-                source={require('@/assets/images/avatar.jpg')}
+                source={{ uri: user.profileImage }}
                 style={styles.profileImage}
               />
               <View>
@@ -286,12 +158,12 @@ export default function HomeScreen() {
             </View>
             
           </View>
-          <TouchableOpacity 
-            style={styles.addButton}
+          {challengeData.isActive && <TouchableOpacity 
+            style={styles.configButton}
             onPress={() => setShowChallengeModal(true)}
           >
-            <AntDesign name={challengeData.isActive ? "setting" : "plus"} size={24} color="white" />
-          </TouchableOpacity>
+            <AntDesign name="setting" size={24} color="white" />
+          </TouchableOpacity>}
         </View>
 {challengeData.isActive && (
               <View style={styles.challengeProgress}>
@@ -370,145 +242,94 @@ export default function HomeScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={styles.habitsContainer}>
-            <View style={styles.noChallengeContainer}>
+            <ScrollView style={styles.noChallengeContainer} 
+            contentContainerStyle={{ paddingBottom: 100 }}
+            >
               <ThemedText type="subtitle" style={styles.noChallengeTitle}>
                 🎯 Ready for the challenge?
               </ThemedText>
               <ThemedText style={styles.noChallengeDescription}>
-                Start your 75-day challenge and track your daily habits. 
-                Transform your routine and achieve your goals!
+                Get ready for your 75-day transformation journey!
               </ThemedText>
-              <TouchableOpacity
-                style={styles.startChallengeCtaButton}
-                onPress={() => setShowChallengeModal(true)}
-              >
-                <ThemedText style={styles.startChallengeCtaText}>
-                  Start Challenge
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
+              
+              <View style={styles.preparationSteps}>
+                <View style={styles.preparationStep}>
+                  <Ionicons name="checkmark-circle" size={24} color={habits.length > 0 ? Colors.light.successColor : '#ccc'} />
+                  <View style={styles.preparationStepContent}>
+                    <ThemedText style={styles.preparationStepTitle}>
+                      Configure Your Habits ({habits.length})
+                    </ThemedText>
+                    <ThemedText style={styles.preparationStepDescription}>
+                      {habits.length > 0 
+                        ? 'Great! You have habits configured.' 
+                        : 'Set up the daily habits you want to track.'}
+                    </ThemedText>
+                  </View>
+                </View>
+                
+                <View style={styles.preparationStep}>
+                  <Ionicons name="play-circle" size={24} color={habits.length > 0 ? Colors.light.tint : '#ccc'} />
+                  <View style={styles.preparationStepContent}>
+                    <ThemedText style={styles.preparationStepTitle}>
+                      Start Your Challenge
+                    </ThemedText>
+                    <ThemedText style={styles.preparationStepDescription}>
+                      Begin your 75-day journey of consistency and growth.
+                    </ThemedText>
+                  </View>
+                </View>
+              </View>
+              
+              <View style={styles.ctaButtons}>
+                {habits.length === 0 && (
+                  <TouchableOpacity
+                    style={styles.configureFirstButton}
+                    onPress={() => router.push('/(tabs)/habitsconfig')}
+                  >
+                    <Ionicons name="settings-outline" size={20} color="white" />
+                    <ThemedText style={styles.configureFirstButtonText}>
+                      Configure Habits First
+                    </ThemedText>
+                  </TouchableOpacity>
+                )}
+
+                {habits.length >= 1 && (
+                  <TouchableOpacity
+                    style={[
+                      styles.startChallengeCtaButton
+                    ]}
+                    onPress={() => setShowChallengeModal(true)}
+                  >
+                  <ThemedText style={[
+                    styles.startChallengeCtaText
+                  ]}>
+                    Start Challenge
+                  </ThemedText>
+                </TouchableOpacity>
+                )}
+              </View>
+            </ScrollView>
           </ThemedView>
         )}
 
-        <Modal
+        <MonthSelectorModal
           visible={showMonthModal}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowMonthModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <ThemedText type="subtitle" style={styles.modalTitle}>
-                Select Month
-              </ThemedText>
-              
-              <ScrollView style={styles.monthList}>
-                {Array.from({ length: 12 }, (_, i) => {
-                  const date = new Date(selectedDate.getFullYear(), i, 1);
-                  return (
-                    <TouchableOpacity
-                      key={i}
-                      style={styles.monthItem}
-                      onPress={() => {
-                        setSelectedDate(new Date(selectedDate.getFullYear(), i, 1));
-                        setShowMonthModal(false);
-                      }}
-                    >
-                      <ThemedText style={styles.monthItemText}>
-                        {`${date.toLocaleDateString('en-US', { month: 'long' })}/${date.getFullYear()}`}
-                      </ThemedText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-              
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowMonthModal(false)}
-              >
-                <ThemedText style={styles.modalCloseText}>Close</ThemedText>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+          onClose={() => setShowMonthModal(false)}
+        />
 
-        <Modal
+        <ChallengeModal
           visible={showChallengeModal}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowChallengeModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <ThemedText type="subtitle" style={styles.modalTitle}>
-                {challengeData.isActive ? 'Configure Challenge' : 'Start Challenge'}
-              </ThemedText>
-              
-              {!challengeData.isActive ? (
-                <View>
-                  <ThemedText style={styles.challengeDescription}>
-                    Start your {challengeData.challengeDays}-day challenge! 
-                    You can track your progress and maintain your habits consistently.
-                  </ThemedText>
-                  
-                  <TouchableOpacity
-                    style={styles.startChallengeButton}
-                    onPress={() => {
-                      startChallenge(new Date());
-                      setShowChallengeModal(false);
-                    }}
-                  >
-                    <ThemedText style={styles.startChallengeButtonText}>
-                      Start Today
-                    </ThemedText>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <View>
-                  <ThemedText style={styles.challengeDescription}>
-                    Challenge in progress since {challengeData.startDate?.toLocaleDateString('en-US')}
-                  </ThemedText>
-                  
-                  <View style={styles.challengeStats}>
-                    <View style={styles.statItem}>
-                      <ThemedText style={styles.statNumber}>{getCurrentDay()}</ThemedText>
-                      <ThemedText style={styles.statLabel}>Current Day</ThemedText>
-                    </View>
-                    
-                    <View style={styles.statItem}>
-                      <ThemedText style={styles.statNumber}>{getDaysRemaining()}</ThemedText>
-                      <ThemedText style={styles.statLabel}>Remaining</ThemedText>
-                    </View>
-                    
-                    <View style={styles.statItem}>
-                      <ThemedText style={styles.statNumber}>{Math.round(getProgressPercentage())}%</ThemedText>
-                      <ThemedText style={styles.statLabel}>Complete</ThemedText>
-                    </View>
-                  </View>
-                  
-                  <TouchableOpacity
-                    style={styles.resetChallengeButton}
-                    onPress={() => {
-                      resetChallenge();
-                      setShowChallengeModal(false);
-                    }}
-                  >
-                    <ThemedText style={styles.resetChallengeButtonText}>
-                      Finish Challenge
-                    </ThemedText>
-                  </TouchableOpacity>
-                </View>
-              )}
-              
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowChallengeModal(false)}
-              >
-                <ThemedText style={styles.modalCloseText}>Close</ThemedText>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+          challengeData={challengeData}
+          habits={habits}
+          onStartChallenge={startChallenge}
+          onResetChallenge={resetChallenge}
+          onClose={() => setShowChallengeModal(false)}
+          getCurrentDay={getCurrentDay}
+          getDaysRemaining={getDaysRemaining}
+          getProgressPercentage={getProgressPercentage}
+        />
     </SafeAreaView>
   );
 }
@@ -517,12 +338,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 130,
   },
   header: {
     flexDirection: 'row',
@@ -538,7 +353,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
   },
-  addButton: {
+  configButton: {
     backgroundColor: Colors.light.tint,
     width: 44,
     height: 44,
@@ -572,132 +387,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
   },
-  dayContainer: {
-    width: 50,
-    height: 110,
-    borderRadius: 30,
-    backgroundColor: '#f5f5f5',
-    borderWidth: 0.5,
-    borderColor: Colors.light.lightGray,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    position: 'relative',
-    paddingVertical: 8,
-
-  },
-  dayContainerCompleted: {
-    backgroundColor: Colors.light.successColor,
-    borderColor: Colors.light.successColor,
-  },
-  dayContainerToday: {
-    borderColor: Colors.light.tint,
-    borderWidth: 3,
-  },
-  dayContainerDisabled: {
-    backgroundColor: '#e0e0e0',
-    borderColor: '#c0c0c0',
-  },
-  dayNameText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#666',
-  },
-  dayNameTextCompleted: {
-    color: 'white',
-  },
-  dayNameTextToday: {
-    fontWeight: '700',
-  },
-  dayNameTextDisabled: {
-    color: '#999',
-  },
-  dayDotCompleted: {
-    backgroundColor: '#ffffff',
-  },
-  dayText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-  },
-  dayTextCompleted: {
-    color: 'white',
-  },
-  dayTextToday: {
-    fontWeight: 'bold',
-  },
-  dayTextDisabled: {
-    color: '#999',
-  },
-  challengeIndicatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  challengeDayIndicator: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: Colors.light.tint,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 8,
-    textAlign: 'center',
-  },
-  canCompleteIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#4CAF50',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#edece4',
-    borderRadius: 20,
-    padding: 20,
-    width: '80%',
-    maxHeight: '70%',
-  },
-  modalTitle: {
-    textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  monthList: {
-    maxHeight: 300,
-  },
-  monthItem: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  monthItemText: {
-    fontSize: 16,
-    textAlign: 'center',
-    textTransform: 'capitalize',
-  },
-  modalCloseButton: {
-    backgroundColor: Colors.light.tint,
-    borderRadius: 10,
-    paddingVertical: 12,
-    marginTop: 20,
-  },
-  modalCloseText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   habitsContainer: {
     paddingHorizontal: 20,
-    marginTop: 24,
     flex: 1,
   },
   habitsTitle: {
@@ -710,59 +401,6 @@ const styles = StyleSheet.create({
   },
   habitsListContent: {
     paddingBottom: 80,
-  },
-  habitCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  habitContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  habitIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  habitName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    flex: 1,
-  },
-  habitNameCompleted: {
-    textDecorationLine: 'line-through',
-    color: '#999',
-  },
-  habitCheckbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  habitCheckboxCompleted: {
-    backgroundColor: Colors.light.tint,
-    borderColor: Colors.light.tint,
   },
   headerLeft: {
     flex: 1,
@@ -801,62 +439,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  challengeDescription: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  startChallengeButton: {
-    backgroundColor: Colors.light.tint,
-    borderRadius: 10,
-    paddingVertical: 15,
-    marginBottom: 10,
-  },
-  startChallengeButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  challengeStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 20,
-    paddingVertical: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: 10,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.light.tint,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  resetChallengeButton: {
-    backgroundColor: '#ff4757',
-    borderRadius: 10,
-    paddingVertical: 12,
-    marginBottom: 10,
-  },
-  resetChallengeButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   noChallengeContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingVertical: 20,
   },
   noChallengeTitle: {
     fontSize: 22,
@@ -870,13 +456,57 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     color: '#666',
-    marginBottom: 30,
   },
   startChallengeCtaButton: {
     backgroundColor: Colors.light.tint,
     borderRadius: 25,
     paddingVertical: 15,
     paddingHorizontal: 40,
+  },
+  startChallengeCtaText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  preparationSteps: {
+    marginVertical: 20,
+    gap: 16,
+  },
+  preparationStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 12,
+    gap: 12,
+  },
+  preparationStepContent: {
+    flex: 1,
+  },
+  preparationStepTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  preparationStepDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 18,
+  },
+  ctaButtons: {
+    gap: 12,
+  },
+  configureFirstButton: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -886,10 +516,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  startChallengeCtaText: {
+  configureFirstButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
