@@ -30,6 +30,10 @@ export default function RootLayout() {
                 }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                <Stack.Screen name="settings/edit-profile" options={{ headerShown: false }} />
+                <Stack.Screen name="settings/notifications" options={{ headerShown: false }} />
+                <Stack.Screen name="settings/privacy" options={{ headerShown: false }} />
+                <Stack.Screen name="settings/about" options={{ headerShown: false }} />
               </Stack>
               <StatusBar style="auto" />
             </ThemeProvider>
