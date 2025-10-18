@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { router } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
@@ -9,8 +9,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useChallenge } from '@/contexts/ChallengeContext';
 import { useUser } from '@/contexts/UserContext';
-
-// Helper function to calculate consecutive days
+import { selectImageSource } from '@/utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const calculateConsecutiveDays = (completedDays: number[], currentDay: number): number => {
   if (completedDays.length === 0 || currentDay === 0) return 0;
   
@@ -29,55 +29,13 @@ const ProfileHeader = () => {
   const { user, updateProfileImage } = useUser();
   
   const selectImage = () => {
-    Alert.alert(
-      'Update Profile Picture',
-      'Choose an option',
-      [
-        { text: 'Camera', onPress: openCamera },
-        { text: 'Gallery', onPress: openGallery },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
-  };
-
-  const openCamera = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert('Permission Required', 'Camera permission is required to take photos.');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
+    selectImageSource((uri: string) => {
+      updateProfileImage(uri);
     });
-
-    if (!result.canceled && result.assets[0]) {
-      updateProfileImage(result.assets[0].uri);
-    }
-  };
-
-  const openGallery = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      Alert.alert('Permission Required', 'Gallery permission is required to select photos.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      updateProfileImage(result.assets[0].uri);
-    }
   };
   
   return (
-    <View style={styles.profileHeader}>
+    <SafeAreaView style={styles.profileHeader}>
       <TouchableOpacity onPress={selectImage} style={styles.profileImageContainer}>
         <Image
           source={user.profileImage ? { uri: user.profileImage } : require('@/assets/images/avatar.jpg')}
@@ -93,12 +51,12 @@ const ProfileHeader = () => {
           style={styles.userName}>
           {user.name}
         </ThemedText>
-        <ThemedText 
+        <ThemedText
           style={styles.userEmail}>
           {user.email}
         </ThemedText>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -115,22 +73,7 @@ const ChallengeProgressCard = () => {
   const completionRate = currentDay > 0 ? Math.round((completedDaysCount / currentDay) * 100) : 0;
   
   if (!challengeData.isActive) {
-    return (
-      <ThemedView style={styles.challengeCard}>
-        <ThemedText type="subtitle" style={styles.challengeTitle}>
-          75 Challenge
-        </ThemedText>
-        <View style={styles.inactiveChallengeContainer}>
-          <Ionicons name="play-circle-outline" size={48} color={Colors.light.successColor} />
-          <ThemedText style={styles.inactiveChallengeText}>
-            No active challenge
-          </ThemedText>
-          <ThemedText style={styles.inactiveChallengeSubtext}>
-            Start your 75-day journey from the Challenge tab
-          </ThemedText>
-        </View>
-      </ThemedView>
-    );
+    return null;
   }
   
   return (
@@ -194,53 +137,61 @@ const ChallengeProgressCard = () => {
   );
 };
 
-export default function ProfileScreen() {
-  const { user } = useUser();
-  
+export default function ProfileScreen() {  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#fff', dark: '#353636' }}
       headerImage={<ProfileHeader />}>
       <View style={styles.contentContainer}>
         <ChallengeProgressCard />
-        
-        <View>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Personal Information
-        </ThemedText>
-        
-        <ThemedView style={styles.infoSection}>
-          <ThemedText type="defaultSemiBold">Full name</ThemedText>
-          <ThemedText>{user.name}</ThemedText>
-        </ThemedView>
-        
-        <ThemedView style={styles.infoSection}>
-          <ThemedText type="defaultSemiBold">Email</ThemedText>
-          <ThemedText>{user.email}</ThemedText>
-        </ThemedView>
-        
-        <ThemedView style={styles.infoSection}>
-          <ThemedText type="defaultSemiBold">Phone</ThemedText>
-          <ThemedText>{user.phone}</ThemedText>
-        </ThemedView>
-        </View>
-        <View style={styles.divider} />
-        <View>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+        <View style={styles.infoSection}>
+        <ThemedText type="subtitle">
           Settings
         </ThemedText>
         
-        <ThemedView style={styles.infoSection}>
-          <ThemedText>Notifications</ThemedText>
-        </ThemedView>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push('/settings/edit-profile' as any)}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="person-outline" size={20} color={Colors.light.icon} />
+            <ThemedText style={styles.settingText}>Edit Profile</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push('/settings/notifications' as any)}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="notifications-outline" size={20} color={Colors.light.icon} />
+            <ThemedText style={styles.settingText}>Notifications</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
+        </TouchableOpacity>
         
-        <ThemedView style={styles.infoSection}>
-          <ThemedText>Privacy</ThemedText>
-        </ThemedView>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push('/settings/privacy' as any)}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="shield-outline" size={20} color={Colors.light.icon} />
+            <ThemedText style={styles.settingText}>Privacy</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
+        </TouchableOpacity>
         
-        <ThemedView style={styles.infoSection}>
-          <ThemedText>About the app</ThemedText>
-        </ThemedView>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => router.push('/settings/about' as any)}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="information-circle-outline" size={20} color={Colors.light.icon} />
+            <ThemedText style={styles.settingText}>About the app</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
+        </TouchableOpacity>
         </View>
       </View>
     </ParallaxScrollView>
@@ -252,8 +203,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 60,
-    gap: 4,
+    gap: 8,
+    paddingTop: 20,
   },
   profileImageContainer: {
     position: 'relative',
@@ -283,15 +234,12 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 16,
-    opacity: 0.7,
+    color: Colors.light.gray,
     textAlign: 'center',
   },
   contentContainer: {
     gap: 20,
     paddingBottom: 70,
-  },
-  sectionTitle: {
-    marginBottom: 8,
   },
   infoSection: {
     gap: 6,
@@ -358,19 +306,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
   },
-  inactiveChallengeContainer: {
+  settingItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    gap: 8,
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  inactiveChallengeText: {
+  settingContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settingText: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  inactiveChallengeSubtext: {
-    fontSize: 14,
-    textAlign: 'center',
-    opacity: 0.7,
+    color: '#333',
   },
 });
