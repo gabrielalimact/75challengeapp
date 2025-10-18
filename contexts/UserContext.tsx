@@ -10,16 +10,19 @@ export interface User {
 
 interface UserContextType {
   user: User;
+  isFirstTime: boolean;
   updateUser: (userData: Partial<User>) => void;
   updateName: (name: string) => void;
   updateEmail: (email: string) => void;
   updatePhone: (phone: string) => void;
   updateProfileImage: (imageUri: string) => void;
+  completeWelcome: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const STORAGE_KEY = '@75challenge_user';
+const FIRST_TIME_KEY = '@75challenge_first_time';
 
 const DEFAULT_USER: User = {
   name: 'Gabriela Cena',
@@ -30,6 +33,7 @@ const DEFAULT_USER: User = {
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User>(DEFAULT_USER);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
 
   // Carregar dados do usuário do AsyncStorage
   const loadUser = useCallback(async () => {
@@ -41,6 +45,26 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error loading user data:', error);
+    }
+  }, []);
+
+  // Verificar se é a primeira vez
+  const checkFirstTime = useCallback(async () => {
+    try {
+      const hasVisited = await AsyncStorage.getItem(FIRST_TIME_KEY);
+      setIsFirstTime(hasVisited === null);
+    } catch (error) {
+      console.error('Error checking first time:', error);
+    }
+  }, []);
+
+  // Marcar welcome como completo
+  const completeWelcome = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem(FIRST_TIME_KEY, 'completed');
+      setIsFirstTime(false);
+    } catch (error) {
+      console.error('Error completing welcome:', error);
     }
   }, []);
 
@@ -85,15 +109,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Carregar dados quando o componente for montado
   useEffect(() => {
     loadUser();
-  }, [loadUser]);
+    checkFirstTime();
+  }, [loadUser, checkFirstTime]);
 
   const contextValue: UserContextType = {
     user,
+    isFirstTime,
     updateUser,
     updateName,
     updateEmail,
     updatePhone,
     updateProfileImage,
+    completeWelcome,
   };
 
   return (
