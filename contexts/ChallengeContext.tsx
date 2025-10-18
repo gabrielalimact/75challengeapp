@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 interface ChallengeData {
   startDate: Date | null;
@@ -33,11 +33,7 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     completedDays: [],
   });
 
-  useEffect(() => {
-    loadChallengeData();
-  }, []);
-
-  const loadChallengeData = async () => {
+  const loadChallengeData = useCallback(async () => {
     try {
       const storedData = await AsyncStorage.getItem('challenge-data');
       if (storedData) {
@@ -56,15 +52,19 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         completedDays: [],
       });
     }
-  };  const saveChallengeData = async (data: ChallengeData) => {
+  }, []);
+
+  useEffect(() => {
+    loadChallengeData();
+  }, [loadChallengeData]);  const saveChallengeData = useCallback(async (data: ChallengeData) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
       console.error('Erro ao salvar dados do desafio:', error);
     }
-  };
+  }, []);
 
-  const startChallenge = async (startDate: Date, days: number = 75) => {
+  const startChallenge = useCallback(async (startDate: Date, days: number = 75) => {
     const newData: ChallengeData = {
       startDate,
       challengeDays: days,
@@ -74,18 +74,18 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     setChallengeData(newData);
     await saveChallengeData(newData);
-  };
+  }, [saveChallengeData]);
 
-    const resetChallenge = () => {
+  const resetChallenge = useCallback(() => {
     setChallengeData({
       startDate: null,
       challengeDays: 75,
       isActive: false,
       completedDays: [],
     });
-  };
+  }, []);
 
-  const getCurrentDay = (): number => {
+  const getCurrentDay = useCallback((): number => {
     if (!challengeData.startDate || !challengeData.isActive) return 0;
     
     const today = new Date();
@@ -97,55 +97,63 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const diffTime = today.getTime() - startDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return Math.max(0, Math.min(diffDays, challengeData.challengeDays));
-  };
+  }, [challengeData.startDate, challengeData.isActive, challengeData.challengeDays]);
 
-  const getDaysRemaining = (): number => {
+  const getDaysRemaining = useCallback((): number => {
     if (!challengeData.isActive) return 0;
     
     const currentDay = getCurrentDay();
     return Math.max(0, challengeData.challengeDays - currentDay);
-  };
+  }, [challengeData.isActive, challengeData.challengeDays, getCurrentDay]);
 
-  const getProgressPercentage = (): number => {
+  const getProgressPercentage = useCallback((): number => {
     if (!challengeData.isActive) return 0;
     
     const currentDay = getCurrentDay();
     return Math.min(100, (currentDay / challengeData.challengeDays) * 100);
-  };
+  }, [challengeData.isActive, challengeData.challengeDays, getCurrentDay]);
 
-  const isCompleted = (): boolean => {
+  const isCompleted = useCallback((): boolean => {
     return challengeData.isActive && getCurrentDay() >= challengeData.challengeDays;
-  };
+  }, [challengeData.isActive, challengeData.challengeDays, getCurrentDay]);
 
-  const isDayCompleted = (challengeDay: number): boolean => {
+  const isDayCompleted = useCallback((challengeDay: number): boolean => {
     return challengeData.completedDays.includes(challengeDay);
-  };
+  }, [challengeData.completedDays]);
 
-  const markDayCompleted = async (challengeDay: number) => {
-    if (!challengeData.isActive || isDayCompleted(challengeDay)) return;
+  const markDayCompleted = useCallback(async (challengeDay: number) => {
+    setChallengeData(prevData => {
+      if (!prevData.isActive || prevData.completedDays.includes(challengeDay)) {
+        return prevData;
+      }
 
-    const newCompletedDays = [...challengeData.completedDays, challengeDay];
-    const newData: ChallengeData = {
-      ...challengeData,
-      completedDays: newCompletedDays,
-    };
+      const newCompletedDays = [...prevData.completedDays, challengeDay];
+      const newData: ChallengeData = {
+        ...prevData,
+        completedDays: newCompletedDays,
+      };
 
-    setChallengeData(newData);
-    await saveChallengeData(newData);
-  };
+      saveChallengeData(newData);
+      return newData;
+    });
+  }, [saveChallengeData]);
 
-  const markDayIncomplete = async (challengeDay: number) => {
-    if (!challengeData.isActive || !isDayCompleted(challengeDay)) return;
+  const markDayIncomplete = useCallback(async (challengeDay: number) => {
+    setChallengeData(prevData => {
+      if (!prevData.isActive || !prevData.completedDays.includes(challengeDay)) {
+        return prevData;
+      }
 
-    const newCompletedDays = challengeData.completedDays.filter(day => day !== challengeDay);
-    const newData: ChallengeData = {
-      ...challengeData,
-      completedDays: newCompletedDays,
-    };
+      const newCompletedDays = prevData.completedDays.filter(day => day !== challengeDay);
+      const newData: ChallengeData = {
+        ...prevData,
+        completedDays: newCompletedDays,
+      };
 
-    setChallengeData(newData);
-    await saveChallengeData(newData);
-  };
+      saveChallengeData(newData);
+      return newData;
+    });
+  }, [saveChallengeData]);
 
 
 
