@@ -4,12 +4,9 @@ import { View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Feather, FontAwesome, FontAwesome6 } from '@expo/vector-icons';
 
 const TabIcon = ({ icon, focused }: { icon: React.ReactNode, focused: boolean }) => {
-  const colorScheme = useColorScheme();
-  
   return (
     <View
       style={{
@@ -19,7 +16,7 @@ const TabIcon = ({ icon, focused }: { icon: React.ReactNode, focused: boolean })
         height: 50,
         borderRadius: 25,
         backgroundColor: focused 
-          ? (colorScheme === 'dark' ? Colors.dark.tabIconSelected : Colors.light.tabIconSelected) 
+          ? (Colors.light.tabIconSelected) 
           : 'transparent',
       }}>
       {icon}
@@ -28,12 +25,10 @@ const TabIcon = ({ icon, focused }: { icon: React.ReactNode, focused: boolean })
 };
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.light.tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
@@ -41,7 +36,7 @@ export default function TabLayout() {
           bottom: 40,
           marginHorizontal: 70,
           height: 70,
-          backgroundColor: colorScheme === 'dark' ? '#302c2cff' : '#ffffff',
+          backgroundColor: '#ffffff',
           borderRadius: 50,
           shadowColor: '#000',
           shadowOffset: {
