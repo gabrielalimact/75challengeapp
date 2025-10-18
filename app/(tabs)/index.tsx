@@ -1,6 +1,6 @@
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,9 +23,15 @@ export default function HomeScreen() {
   const [showMonthModal, setShowMonthModal] = useState(false);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const daysScrollRef = useRef<ScrollView>(null);
+  const updateTimeoutRef = useRef<number | null>(null);
+  const lastHabitsStateRef = useRef<string>('');
   const { getCurrentDay, getDaysRemaining, getProgressPercentage, challengeData, startChallenge, resetChallenge, isDayCompleted, markDayCompleted, markDayIncomplete } = useChallenge();
   const { habits } = useHabits();
   const { user } = useUser();
+
+
+
+
 
   const [habitsByDay, setHabitsByDay] = useState<Record<string, typeof habits>>({});
   
@@ -54,6 +60,31 @@ export default function HomeScreen() {
   useEffect(() => {
     setHabitsByDay({});
   }, [habits]);
+
+  // Função para verificar e atualizar status do dia com debounce
+  const checkAndUpdateDayStatus = useCallback((dayHabits: typeof currentDayHabits, challengeDay: number) => {
+    const allHabitsCompleted = dayHabits.length > 0 && dayHabits.every(habit => habit.isCompleted);
+    const isDayCurrentlyCompleted = isDayCompleted(challengeDay);
+    
+    const habitsStateKey = `${challengeDay}-${JSON.stringify(dayHabits.map(h => ({ id: h.id, completed: h.isCompleted })))}`;
+    
+    // Só atualizar se o estado dos hábitos realmente mudou
+    if (lastHabitsStateRef.current !== habitsStateKey) {
+      lastHabitsStateRef.current = habitsStateKey;
+      
+      console.log('Debug - Challenge Day:', challengeDay);
+      console.log('Debug - All Habits Completed:', allHabitsCompleted);
+      console.log('Debug - Is Day Currently Completed:', isDayCurrentlyCompleted);
+      
+      if (allHabitsCompleted && !isDayCurrentlyCompleted) {
+        console.log('Debug - Marking day completed:', challengeDay);
+        markDayCompleted(challengeDay);
+      } else if (!allHabitsCompleted && isDayCurrentlyCompleted) {
+        console.log('Debug - Marking day incomplete:', challengeDay);
+        markDayIncomplete(challengeDay);
+      }
+    }
+  }, [isDayCompleted, markDayCompleted, markDayIncomplete]);
 
   useEffect(() => {
     const todayIndex = days.findIndex(day => day.isToday);
@@ -106,30 +137,38 @@ export default function HomeScreen() {
     });
   };
 
+  // useEffect com debounce para verificar conclusão do dia
   useEffect(() => {
     if (!challengeData.isActive || !challengeData.startDate) return;
 
-    const selectedDateObj = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDay);
-    const startDate = new Date(challengeData.startDate);
-    startDate.setHours(0, 0, 0, 0);
-    selectedDateObj.setHours(0, 0, 0, 0);
-    
-    const diffTime = selectedDateObj.getTime() - startDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const challengeDay = diffDays + 1;
-    
-    if (challengeDay >= 1 && challengeDay <= challengeData.challengeDays) {
-      const dayHabits = currentDayHabits;
-      const allHabitsCompleted = dayHabits.length > 0 && dayHabits.every(habit => habit.isCompleted);
-      const isDayCurrentlyCompleted = isDayCompleted(challengeDay);
-      
-      if (allHabitsCompleted && !isDayCurrentlyCompleted) {
-        markDayCompleted(challengeDay);
-      } else if (!allHabitsCompleted && isDayCurrentlyCompleted) {
-        markDayIncomplete(challengeDay);
-      }
+    // Limpar timeout anterior
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
     }
-  }, [currentDayHabits, challengeData.isActive, challengeData.startDate, selectedDay, selectedDate, isDayCompleted, markDayCompleted, markDayIncomplete, challengeData.challengeDays]);
+
+    // Definir novo timeout com debounce
+    updateTimeoutRef.current = window.setTimeout(() => {
+      const selectedDateObj = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDay);
+      const startDate = new Date(challengeData.startDate!);
+      startDate.setHours(0, 0, 0, 0);
+      selectedDateObj.setHours(0, 0, 0, 0);
+      
+      const diffTime = selectedDateObj.getTime() - startDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const challengeDay = diffDays + 1;
+      
+      if (challengeDay >= 1 && challengeDay <= challengeData.challengeDays) {
+        checkAndUpdateDayStatus(currentDayHabits, challengeDay);
+      }
+    }, 300); // Debounce de 300ms
+
+    // Cleanup
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [currentDayHabits, selectedDay, selectedDate, challengeData.isActive, challengeData.startDate, challengeData.challengeDays, checkAndUpdateDayStatus]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
