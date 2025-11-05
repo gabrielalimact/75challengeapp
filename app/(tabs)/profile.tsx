@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { useChallenge } from '@/contexts/ChallengeContext';
+import { useHabits } from '@/contexts/HabitsContext';
 import { useUser } from '@/contexts/UserContext';
 import { selectImageSource } from '@/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -137,7 +138,62 @@ const ChallengeProgressCard = () => {
   );
 };
 
-export default function ProfileScreen() {  
+export default function ProfileScreen() {
+  const { logout } = useUser();
+  const { resetChallenge } = useChallenge();
+  const { resetHabitsForDay } = useHabits();
+
+  const handleClearCache = async () => {
+    Alert.alert(
+      'Limpar Cache',
+      'Isso irá remover dados temporários e pode melhorar a performance. Seus dados de progresso serão mantidos.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Limpar',
+          onPress: () => {
+            resetHabitsForDay();
+            Alert.alert('Sucesso', 'Cache limpo com sucesso!');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Confirmar Logout',
+      'Tem certeza que deseja sair?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              resetChallenge();
+              
+              resetHabitsForDay();
+              
+              await logout();
+              
+              router.replace('/welcome');
+            } catch (error) {
+              Alert.alert('Erro', 'Ocorreu um erro ao fazer logout. Tente novamente.');
+              console.error('Erro no logout:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#fff', dark: '#353636' }}
@@ -161,8 +217,9 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.settingItem}
+          style={[styles.settingItem, { opacity: 0.5 }]}
           onPress={() => router.push('/settings/notifications' as any)}
+          disabled
         >
           <View style={styles.settingContent}>
             <Ionicons name="notifications-outline" size={20} color={Colors.light.icon} />
@@ -192,9 +249,21 @@ export default function ProfileScreen() {
           </View>
           <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
         </TouchableOpacity>
+        
         <TouchableOpacity 
           style={styles.settingItem}
-          onPress={() => router.push('/welcome')}
+          onPress={() => handleClearCache()}
+        >
+          <View style={styles.settingContent}>
+            <Ionicons name="refresh-outline" size={20} color={Colors.light.icon} />
+            <ThemedText style={styles.settingText}>Clear Cache</ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={() => handleLogout()}
         >
           <View style={styles.settingContent}>
             <Ionicons name="log-out-outline" size={20} color={Colors.light.dangerColor} />
