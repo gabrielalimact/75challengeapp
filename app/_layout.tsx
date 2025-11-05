@@ -1,7 +1,6 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -19,16 +18,26 @@ export default function RootLayout() {
       <ChallengeProvider>
         <HabitsProvider>
           <SafeAreaProvider>
-          <View style={styles.container}>
             <ThemeProvider value={DefaultTheme}>
-              <Stack
-                screenOptions={{
-                  contentStyle: { backgroundColor: '#edece4' },
-                }}>
+              <Stack>
                 <Stack.Screen name="index" options={{ headerShown: false }} />
                 <Stack.Screen name="welcome" options={{ headerShown: false }} />
-                <Stack.Screen name="login" options={{ headerShown: false }} />
-                <Stack.Screen name="signup" options={{ headerShown: false }} />
+                <Stack.Screen 
+                  name="login" 
+                  options={{ 
+                    headerShown: false,
+                    presentation: 'modal',
+                    animation: 'slide_from_bottom'
+                  }} 
+                />
+                <Stack.Screen 
+                  name="signup" 
+                  options={{ 
+                    headerShown: false,
+                    presentation: 'modal',
+                    animation: 'slide_from_bottom'
+                  }} 
+                />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
                 <Stack.Screen name="settings/edit-profile" options={{ headerShown: false }} />
@@ -38,16 +47,9 @@ export default function RootLayout() {
               </Stack>
               <StatusBar style="dark" />
             </ThemeProvider>
-          </View>
         </SafeAreaProvider>
         </HabitsProvider>
       </ChallengeProvider>
     </UserProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
