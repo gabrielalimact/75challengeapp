@@ -61,14 +61,12 @@ export default function HomeScreen() {
     setHabitsByDay({});
   }, [habits]);
 
-  // Função para verificar e atualizar status do dia com debounce
   const checkAndUpdateDayStatus = useCallback((dayHabits: typeof currentDayHabits, challengeDay: number) => {
     const allHabitsCompleted = dayHabits.length > 0 && dayHabits.every(habit => habit.isCompleted);
     const isDayCurrentlyCompleted = isDayCompleted(challengeDay);
     
     const habitsStateKey = `${challengeDay}-${JSON.stringify(dayHabits.map(h => ({ id: h.id, completed: h.isCompleted })))}`;
     
-    // Só atualizar se o estado dos hábitos realmente mudou
     if (lastHabitsStateRef.current !== habitsStateKey) {
       lastHabitsStateRef.current = habitsStateKey;
       
@@ -137,16 +135,13 @@ export default function HomeScreen() {
     });
   };
 
-  // useEffect com debounce para verificar conclusão do dia
   useEffect(() => {
     if (!challengeData.isActive || !challengeData.startDate) return;
 
-    // Limpar timeout anterior
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
     }
 
-    // Definir novo timeout com debounce
     updateTimeoutRef.current = window.setTimeout(() => {
       const selectedDateObj = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDay);
       const startDate = new Date(challengeData.startDate!);
@@ -160,9 +155,8 @@ export default function HomeScreen() {
       if (challengeDay >= 1 && challengeDay <= challengeData.challengeDays) {
         checkAndUpdateDayStatus(currentDayHabits, challengeDay);
       }
-    }, 300); // Debounce de 300ms
+    }, 300);
 
-    // Cleanup
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
