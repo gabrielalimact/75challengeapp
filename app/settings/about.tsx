@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -43,36 +43,36 @@ export default function AboutScreen() {
     );
   };
 
-  // const handleContactSupport = () => {
-  //   const email = 'support@75challengeapp.com';
-  //   const subject = '75 Challenge App - Support Request';
-  //   const url = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+  const handleContactSupport = () => {
+    const email = 'support@75challengeapp.com';
+    const subject = '75 Challenge App - Support Request';
+    const url = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
     
-  //   Linking.openURL(url).catch(() => {
-  //     Alert.alert('Error', 'Could not open email client. Please email us at support@75challengeapp.com');
-  //   });
-  // };
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Error', 'Could not open email client. Please email us at support@75challengeapp.com');
+    });
+  };
 
-  // const handleWebsite = () => {
-  //   const url = 'https://75challengeapp.com';
-  //   Linking.openURL(url).catch(() => {
-  //     Alert.alert('Error', 'Could not open website.');
-  //   });
-  // };
+  const handleWebsite = () => {
+    const url = 'https://75challengeapp.com';
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Error', 'Could not open website.');
+    });
+  };
 
-  // const handlePrivacyPolicy = () => {
-  //   const url = 'https://75challengeapp.com/privacy';
-  //   Linking.openURL(url).catch(() => {
-  //     Alert.alert('Error', 'Could not open privacy policy.');
-  //   });
-  // };
+  const handlePrivacyPolicy = () => {
+    const url = 'https://75challengeapp.com/privacy';
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Error', 'Could not open privacy policy.');
+    });
+  };
 
-  // const handleTermsOfService = () => {
-  //   const url = 'https://75challengeapp.com/terms';
-  //   Linking.openURL(url).catch(() => {
-  //     Alert.alert('Error', 'Could not open terms of service.');
-  //   });
-  // };
+  const handleTermsOfService = () => {
+    const url = 'https://75challengeapp.com/terms';
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Error', 'Could not open terms of service.');
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
