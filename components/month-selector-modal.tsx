@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -16,6 +17,23 @@ export default function MonthSelectorModal({
   onDateSelect, 
   onClose 
 }: MonthSelectorModalProps) {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const itemHeight = 56;
+  useEffect(() => {
+    if (visible && scrollViewRef.current) {
+      const selectedMonth = selectedDate.getMonth();
+      
+      const scrollPosition = Math.max(0, selectedMonth * itemHeight - 120);
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: scrollPosition,
+          animated: true,
+        });
+      }, 150); 
+    }
+  }, [visible, selectedDate]);
+
   return (
     <Modal
       visible={visible}
@@ -29,20 +47,31 @@ export default function MonthSelectorModal({
             Select Month
           </ThemedText>
           
-          <ScrollView style={styles.monthList}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.monthList}
+            showsVerticalScrollIndicator={true}
+          >
             {Array.from({ length: 12 }, (_, i) => {
               const date = new Date(selectedDate.getFullYear(), i, 1);
               return (
                 <TouchableOpacity
                   key={i}
-                  style={styles.monthItem}
+                  style={[
+                    styles.monthItem,
+                    selectedDate.getMonth() === i && styles.selectedMonthItem
+                  ]}
                   onPress={() => {
                     onDateSelect(new Date(selectedDate.getFullYear(), i, 1));
                     onClose();
                   }}
                 >
-                  <ThemedText style={styles.monthItemText}>
-                    {`${date.toLocaleDateString('en-US', { month: 'long' })}/${date.getFullYear()}`}
+                  <ThemedText style={[
+                    styles.monthItemText, 
+                    selectedDate.getMonth() === i && styles.selectedMonthText
+                  ]}>
+                    {`${date.toLocaleDateString('en-US', { month: 'long' })} ${date.getFullYear()}`}
+                    {selectedDate.getMonth() === i && ' ✓'}
                   </ThemedText>
                 </TouchableOpacity>
               );
@@ -89,11 +118,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    minHeight: 56, // Garantir altura consistente
+  },
+  selectedMonthItem: {
+    backgroundColor: Colors.light.tint + '20',
   },
   monthItemText: {
     fontSize: 16,
     textAlign: 'center',
     textTransform: 'capitalize',
+  },
+  selectedMonthText: {
+    fontWeight: 'bold',
   },
   modalCloseButton: {
     backgroundColor: Colors.light.tint,
