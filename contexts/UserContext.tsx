@@ -1,3 +1,4 @@
+import { clearAllAppData, verifyDataCleared } from '@/utils/logout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -17,6 +18,7 @@ interface UserContextType {
   updatePhone: (phone: string) => void;
   updateProfileImage: (imageUri: string) => void;
   completeWelcome: () => void;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -35,7 +37,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User>(DEFAULT_USER);
   const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
 
-  // Carregar dados do usuário do AsyncStorage
   const loadUser = useCallback(async () => {
     try {
       const storedUser = await AsyncStorage.getItem(STORAGE_KEY);
@@ -48,7 +49,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Verificar se é a primeira vez
   const checkFirstTime = useCallback(async () => {
     try {
       const hasVisited = await AsyncStorage.getItem(FIRST_TIME_KEY);
@@ -58,7 +58,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Marcar welcome como completo
   const completeWelcome = useCallback(async () => {
     try {
       await AsyncStorage.setItem(FIRST_TIME_KEY, 'completed');
@@ -68,7 +67,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Salvar dados do usuário no AsyncStorage
   const saveUser = useCallback(async (userData: User) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
@@ -77,7 +75,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Atualizar dados do usuário
   const updateUser = useCallback((userData: Partial<User>) => {
     setUser(prevUser => {
       const newUser = { ...prevUser, ...userData };
@@ -86,27 +83,38 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [saveUser]);
 
-  // Atualizar apenas o nome
   const updateName = useCallback((name: string) => {
     updateUser({ name });
   }, [updateUser]);
 
-  // Atualizar apenas o email
   const updateEmail = useCallback((email: string) => {
     updateUser({ email });
   }, [updateUser]);
 
-  // Atualizar apenas o telefone
   const updatePhone = useCallback((phone: string) => {
     updateUser({ phone });
   }, [updateUser]);
 
-  // Atualizar apenas a imagem de perfil
   const updateProfileImage = useCallback((imageUri: string) => {
     updateUser({ profileImage: imageUri });
   }, [updateUser]);
 
-  // Carregar dados quando o componente for montado
+  const logout = useCallback(async () => {
+    try {
+      await clearAllAppData();
+
+      setUser(DEFAULT_USER);
+      setIsFirstTime(true);
+
+      await verifyDataCleared();
+
+      console.log('✅ Logout realizado com sucesso - todos os dados foram limpos');
+    } catch (error) {
+      console.error('❌ Erro durante o logout:', error);
+      throw error;
+    }
+  }, []);
+
   useEffect(() => {
     loadUser();
     checkFirstTime();
@@ -121,6 +129,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updatePhone,
     updateProfileImage,
     completeWelcome,
+    logout,
   };
 
   return (
@@ -130,7 +139,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Hook personalizado para usar o contexto
 export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
