@@ -1,17 +1,16 @@
-import { useEffect } from 'react';
 import { router } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { useUser } from '@/contexts/UserContext';
 import { Colors } from '@/constants/theme';
+import { useUser } from '@/contexts/UserContext';
 
 export default function InitialScreen() {
   const { isFirstTime } = useUser();
 
   useEffect(() => {
-    // Pequeno delay para permitir que o contexto carregue
     const timer = setTimeout(() => {
       if (isFirstTime) {
         router.replace('/welcome');
