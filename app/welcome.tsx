@@ -1,8 +1,8 @@
+import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AntDesign } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -69,9 +69,7 @@ export default function WelcomeScreen() {
   };
 
   const handleGetStarted = () => {
-    // Na última tela, mostra opções de login/cadastro
     if (currentSlide === welcomeSlides.length - 1) {
-      // Não faz nada, deixa os botões de login/cadastro aparecerem
       return;
     }
     completeWelcome();
@@ -137,7 +135,6 @@ export default function WelcomeScreen() {
 
         {/* Footer */}
         {currentSlide === welcomeSlides.length - 1 ? (
-          // Última tela - mostrar botões de Login e Cadastro
           <View style={styles.authFooter}>
             <TouchableOpacity
               style={[styles.signupButton, { backgroundColor: currentSlideData.color }]}
@@ -156,7 +153,6 @@ export default function WelcomeScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          // Telas anteriores - navegação normal
           <View style={styles.footer}>
             <TouchableOpacity
               style={[styles.navButton, { opacity: currentSlide === 0 ? 0.3 : 1 }]}

@@ -1,21 +1,21 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
-import { 
-  Alert, 
-  Dimensions, 
-  KeyboardAvoidingView, 
-  Modal,
-  Platform, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  View 
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import {
+  Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -38,16 +38,18 @@ export default function SignupScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { updateUser, completeWelcome } = useUser();
 
+  const handleClose = () => {
+    router.back();
+  };
+
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   const formatPhone = (text: string) => {
-    // Remove tudo que não é número
     const numbers = text.replace(/\D/g, '');
     
-    // Aplica a máscara (11) 99999-9999
     if (numbers.length <= 11) {
       const formatted = numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
       return formatted;
@@ -61,73 +63,71 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     router.replace('/(tabs)');
-  //   if (!name.trim()) {
-  //     Alert.alert('Erro', 'Por favor, insira seu nome.');
-  //     return;
-  //   }
+    if (!name.trim()) {
+      Alert.alert('Erro', 'Por favor, insira seu nome.');
+      return;
+    }
 
-  //   if (!email.trim()) {
-  //     Alert.alert('Erro', 'Por favor, insira seu email.');
-  //     return;
-  //   }
+    if (!email.trim()) {
+      Alert.alert('Erro', 'Por favor, insira seu email.');
+      return;
+    }
 
-  //   if (!validateEmail(email)) {
-  //     Alert.alert('Erro', 'Por favor, insira um email válido.');
-  //     return;
-  //   }
+    if (!validateEmail(email)) {
+      Alert.alert('Erro', 'Por favor, insira um email válido.');
+      return;
+    }
 
-  //   if (!phone.trim()) {
-  //     Alert.alert('Erro', 'Por favor, insira seu telefone.');
-  //     return;
-  //   }
+    if (!phone.trim()) {
+      Alert.alert('Erro', 'Por favor, insira seu telefone.');
+      return;
+    }
 
-  //   if (!password.trim()) {
-  //     Alert.alert('Erro', 'Por favor, insira sua senha.');
-  //     return;
-  //   }
+    if (!password.trim()) {
+      Alert.alert('Erro', 'Por favor, insira sua senha.');
+      return;
+    }
 
-  //   if (password.length < 6) {
-  //     Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
-  //     return;
-  //   }
+    if (password.length < 6) {
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
 
-  //   if (password !== confirmPassword) {
-  //     Alert.alert('Erro', 'As senhas não coincidem.');
-  //     return;
-  //   }
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
+      return;
+    }
 
-  //   // Verificar se é maior de idade
-  //   const today = new Date();
-  //   const age = today.getFullYear() - birthDate.getFullYear();
-  //   const monthDiff = today.getMonth() - birthDate.getMonth();
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
     
-  //   if (age < 18 || (age === 18 && monthDiff < 0)) {
-  //     Alert.alert('Erro', 'Você deve ter pelo menos 18 anos para se cadastrar.');
-  //     return;
-  //   }
+    if (age < 18 || (age === 18 && monthDiff < 0)) {
+      Alert.alert('Erro', 'Você deve ter pelo menos 18 anos para se cadastrar.');
+      return;
+    }
 
-  //   setIsLoading(true);
+    setIsLoading(true);
 
-  //   // Simular cadastro (aqui você adicionaria a lógica real de registro)
-  //   setTimeout(() => {
-  //     // Atualizar dados do usuário
-  //     updateUser({
-  //       name: name.trim(),
-  //       email: email.trim().toLowerCase(),
-  //       phone: phone.trim(),
-  //     });
+    // Simular cadastro (aqui você adicionaria a lógica real de registro)
+    setTimeout(() => {
+      updateUser({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+      });
       
-  //     setIsLoading(false);
-  //     completeWelcome();
+      setIsLoading(false);
+      completeWelcome();
       
-  //     Alert.alert(
-  //       'Sucesso!', 
-  //       'Conta criada com sucesso! Bem-vindo ao 75 Challenge App!',
-  //       [
-  //         { text: 'OK', onPress: () => router.replace('/(tabs)') }
-  //       ]
-  //     );
-  //   }, 1500);
+      Alert.alert(
+        'Sucesso!', 
+        'Conta criada com sucesso! Bem-vindo ao 75 Challenge App!',
+        [
+          { text: 'OK', onPress: () => router.replace('/(tabs)') }
+        ]
+      );
+    }, 1500);
   };
 
 
@@ -174,7 +174,7 @@ export default function SignupScreen() {
             <View style={styles.header}>
               <TouchableOpacity 
                 style={styles.backButton}
-                onPress={() => router.back()}
+                onPress={handleClose}
               >
                 <AntDesign name="left" size={24} color={Colors.light.text} />
               </TouchableOpacity>
@@ -609,10 +609,8 @@ const styles = StyleSheet.create({
   },
   datePickerContainer: {
     paddingHorizontal: 20,
-    // paddingVertical: 20,
   },
   datePicker: {
     width: '100%',
-    // height: 200,
   },
 });
