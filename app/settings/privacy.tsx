@@ -68,6 +68,7 @@ export default function PrivacyScreen() {
               </View>
             </View>
             <Switch
+              disabled
               value={dataCollection}
               onValueChange={setDataCollection}
               trackColor={{ false: '#e0e0e0', true: Colors.light.tint }}
@@ -86,6 +87,7 @@ export default function PrivacyScreen() {
               </View>
             </View>
             <Switch
+              disabled
               value={analytics}
               onValueChange={setAnalytics}
               trackColor={{ false: '#e0e0e0', true: Colors.light.tint }}
@@ -104,6 +106,7 @@ export default function PrivacyScreen() {
               </View>
             </View>
             <Switch
+              disabled
               value={crashReports}
               onValueChange={setCrashReports}
               trackColor={{ false: '#e0e0e0', true: Colors.light.tint }}
@@ -127,6 +130,7 @@ export default function PrivacyScreen() {
               </View>
             </View>
             <Switch
+              disabled
               value={personalizedAds}
               onValueChange={setPersonalizedAds}
               trackColor={{ false: '#e0e0e0', true: Colors.light.tint }}
@@ -134,7 +138,7 @@ export default function PrivacyScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity disabled style={styles.settingItem}>
             <View style={styles.settingContent}>
               <Ionicons name="shield-outline" size={20} color={Colors.light.icon} />
               <View style={styles.settingTextContainer}>
@@ -152,7 +156,7 @@ export default function PrivacyScreen() {
         <ThemedView style={styles.section}>
           <ThemedText style={styles.sectionTitle}>Data Management</ThemedText>
           
-          <TouchableOpacity style={styles.settingItem} onPress={handleDataExport}>
+          <TouchableOpacity disabled style={styles.settingItem} onPress={handleDataExport}>
             <View style={styles.settingContent}>
               <Ionicons name="download-outline" size={20} color={Colors.light.icon} />
               <View style={styles.settingTextContainer}>
@@ -165,7 +169,7 @@ export default function PrivacyScreen() {
             <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} onPress={handleDeleteData}>
+          <TouchableOpacity disabled style={styles.settingItem} onPress={handleDeleteData}>
             <View style={styles.settingContent}>
               <Ionicons name="trash-outline" size={20} color="#ff4757" />
               <View style={styles.settingTextContainer}>
@@ -183,7 +187,7 @@ export default function PrivacyScreen() {
         <ThemedView style={styles.section}>
           <ThemedText style={styles.sectionTitle}>Legal</ThemedText>
           
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity disabled style={styles.settingItem}>
             <View style={styles.settingContent}>
               <Ionicons name="document-text-outline" size={20} color={Colors.light.icon} />
               <View style={styles.settingTextContainer}>
@@ -196,7 +200,7 @@ export default function PrivacyScreen() {
             <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity disabled style={styles.settingItem}>
             <View style={styles.settingContent}>
               <Ionicons name="document-outline" size={20} color={Colors.light.icon} />
               <View style={styles.settingTextContainer}>
@@ -209,7 +213,7 @@ export default function PrivacyScreen() {
             <Ionicons name="chevron-forward" size={20} color={Colors.light.icon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity disabled style={styles.settingItem}>
             <View style={styles.settingContent}>
               <Ionicons name="help-circle-outline" size={20} color={Colors.light.icon} />
               <View style={styles.settingTextContainer}>
@@ -258,6 +262,7 @@ const styles = StyleSheet.create({
   section: {
     paddingVertical: 20,
     marginBottom: 10,
+    opacity: 0.5,
   },
   sectionTitle: {
     fontSize: 18,
