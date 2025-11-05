@@ -1,19 +1,19 @@
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { 
-  Alert, 
-  Dimensions, 
-  KeyboardAvoidingView, 
-  Platform, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  View 
+import {
+  Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -29,6 +29,10 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { completeWelcome } = useUser();
 
+  const handleClose = () => {
+    router.back();
+  };
+
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -36,34 +40,34 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     router.replace('/(tabs)');
-    // if (!email.trim()) {
-    //   Alert.alert('Erro', 'Por favor, insira seu email.');
-    //   return;
-    // }
+    if (!email.trim()) {
+      Alert.alert('Erro', 'Por favor, insira seu email.');
+      return;
+    }
 
-    // if (!validateEmail(email)) {
-    //   Alert.alert('Erro', 'Por favor, insira um email válido.');
-    //   return;
-    // }
+    if (!validateEmail(email)) {
+      Alert.alert('Erro', 'Por favor, insira um email válido.');
+      return;
+    }
 
-    // if (!password.trim()) {
-    //   Alert.alert('Erro', 'Por favor, insira sua senha.');
-    //   return;
-    // }
+    if (!password.trim()) {
+      Alert.alert('Erro', 'Por favor, insira sua senha.');
+      return;
+    }
 
-    // if (password.length < 6) {
-    //   Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
-    //   return;
-    // }
+    if (password.length < 6) {
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
 
-    // setIsLoading(true);
+    setIsLoading(true);
 
-    // // Simular login (aqui você adicionaria a lógica real de autenticação)
-    // setTimeout(() => {
-    //   setIsLoading(false);
-    //   completeWelcome();
-    //   router.replace('/(tabs)');
-    // }, 1500);
+    // Simular login (aqui você adicionaria a lógica real de autenticação)
+    setTimeout(() => {
+      setIsLoading(false);
+      completeWelcome();
+      router.replace('/(tabs)');
+    }, 1500);
   };
 
   const handleForgotPassword = () => {
@@ -95,7 +99,7 @@ export default function LoginScreen() {
             <View style={styles.header}>
               <TouchableOpacity 
                 style={styles.backButton}
-                onPress={() => router.back()}
+                onPress={handleClose}
               >
                 <AntDesign name="left" size={24} color={Colors.light.text} />
               </TouchableOpacity>
