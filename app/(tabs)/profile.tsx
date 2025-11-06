@@ -217,9 +217,8 @@ export default function ProfileScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.settingItem, { opacity: 0.5 }]}
+          style={[styles.settingItem]}
           onPress={() => router.push('/settings/notifications' as any)}
-          disabled
         >
           <View style={styles.settingContent}>
             <Ionicons name="notifications-outline" size={20} color={Colors.light.icon} />
