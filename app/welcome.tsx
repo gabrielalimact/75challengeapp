@@ -31,34 +31,35 @@ interface WelcomeSlide {
 
 const welcomeSlides: WelcomeSlide[] = [
   {
-    title: 'Bem-vindo ao',
+    title: 'Welcome to',
     subtitle: '75 Challenge App',
-    description: 'Transforme sua vida em 75 dias com o desafio de disciplina mental mais desafiador do mundo.',
+    description: 'Transform your life in 75 days with the world\'s most intense mental discipline challenge.',
     icon: '🎯',
     color: Colors.light.tint,
   },
   {
-    title: 'Acompanhe',
-    subtitle: 'Seus Hábitos',
-    description: 'Crie e monitore hábitos diários personalizados. Marque como completo e veja seu progresso crescer.',
+    title: 'Track',
+    subtitle: 'Your Habits',
+    description: 'Create and monitor custom daily habits. Mark them as completed and watch your progress grow.',
     icon: '📋',
     color: Colors.light.successColor,
   },
   {
     title: 'Visual',
-    subtitle: 'Calendário',
-    description: 'Veja seu progresso de forma visual com nosso calendário interativo. Cada dia completo é uma vitória!',
+    subtitle: 'Calendar',
+    description: 'See your progress visually with our interactive calendar. Every completed day is a victory!',
     icon: '📅',
     color: Colors.light.dangerColor,
   },
   {
-    title: 'Comece',
-    subtitle: 'Sua Jornada',
-    description: 'Pronto para aceitar o desafio? Vamos configurar seu perfil e começar esta transformação incrível!',
+    title: 'Start',
+    subtitle: 'Your Journey',
+    description: 'Ready to take on the challenge? Let’s set up your profile and begin this incredible transformation!',
     icon: '🚀',
     color: Colors.light.tint,
   },
 ];
+
 
 export default function WelcomeScreen() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -251,7 +252,7 @@ export default function WelcomeScreen() {
                 style={[styles.signupButton, { backgroundColor: currentSlideData.color }]}
                 onPress={handleSignup}
               >
-                <ThemedText style={styles.authButtonText}>Criar Conta</ThemedText>
+                <ThemedText style={styles.authButtonText}>Join us</ThemedText>
               </TouchableOpacity>
             </Animated.View>
             
@@ -261,7 +262,7 @@ export default function WelcomeScreen() {
                 onPress={handleLogin}
               >
                 <ThemedText style={[styles.loginButtonText, { color: currentSlideData.color }]}>
-                  Já tenho conta
+                  Log in
                 </ThemedText>
               </TouchableOpacity>
             </Animated.View>

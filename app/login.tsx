@@ -40,29 +40,29 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     router.replace('/(tabs)');
-    if (!email.trim()) {
-      Alert.alert('Erro', 'Por favor, insira seu email.');
-      return;
-    }
 
-    if (!validateEmail(email)) {
-      Alert.alert('Erro', 'Por favor, insira um email válido.');
-      return;
-    }
+    // if (!email.trim()) {
+    //   Alert.alert('Error', 'Please enter your email.');
+    //   return;
+    // }
 
-    if (!password.trim()) {
-      Alert.alert('Erro', 'Por favor, insira sua senha.');
-      return;
-    }
+    // if (!validateEmail(email)) {
+    //   Alert.alert('Error', 'Please enter a valid email.');
+    //   return;
+    // }
 
-    if (password.length < 6) {
-      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
-      return;
-    }
+    // if (!password.trim()) {
+    //   Alert.alert('Error', 'Please enter your password.');
+    //   return;
+    // }
+
+    // if (password.length < 6) {
+    //   Alert.alert('Error', 'Password must be at least 6 characters.');
+    //   return;
+    // }
 
     setIsLoading(true);
 
-    // Simular login (aqui você adicionaria a lógica real de autenticação)
     setTimeout(() => {
       setIsLoading(false);
       completeWelcome();
@@ -72,11 +72,11 @@ export default function LoginScreen() {
 
   const handleForgotPassword = () => {
     Alert.alert(
-      'Recuperar Senha',
-      'Um email com instruções para redefinir sua senha será enviado para: ' + email,
+      'Recover Password',
+      'An email with password reset instructions will be sent to: ' + email,
       [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Enviar', onPress: () => Alert.alert('Sucesso', 'Email enviado!') }
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Send', onPress: () => Alert.alert('Success', 'Email sent!') }
       ]
     );
   };
@@ -109,15 +109,13 @@ export default function LoginScreen() {
               <View style={styles.logoIcon}>
                 <Text style={styles.logoEmoji}>🎯</Text>
               </View>
-              <Text style={styles.title}>Entrar</Text>
+              <Text style={styles.title}>Login</Text>
               <Text style={styles.subtitle}>
-                Bem-vindo de volta! Entre para continuar sua jornada.
+                Welcome back! Log in to continue your journey.
               </Text>
             </View>
 
-            {/* Form */}
             <View style={styles.form}>
-              {/* Email Input */}
               <View style={styles.inputContainer}>
                 <ThemedText style={styles.label}>Email</ThemedText>
                 <View style={styles.inputWrapper}>
@@ -129,7 +127,7 @@ export default function LoginScreen() {
                   />
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Digite seu email"
+                    placeholder="Enter your email"
                     placeholderTextColor={Colors.light.gray}
                     value={email}
                     onChangeText={setEmail}
@@ -141,7 +139,7 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Senha</ThemedText>
+                <ThemedText style={styles.label}>Password</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Ionicons 
                     name="lock-closed-outline" 
@@ -151,7 +149,7 @@ export default function LoginScreen() {
                   />
                   <TextInput
                     style={[styles.textInput, styles.passwordInput]}
-                    placeholder="Digite sua senha"
+                    placeholder="Enter your password"
                     placeholderTextColor={Colors.light.gray}
                     value={password}
                     onChangeText={setPassword}
@@ -172,17 +170,15 @@ export default function LoginScreen() {
                 </View>
               </View>
 
-              {/* Forgot Password */}
               <TouchableOpacity 
                 style={styles.forgotPassword}
                 onPress={handleForgotPassword}
               >
                 <ThemedText style={styles.forgotPasswordText}>
-                  Esqueceu sua senha?
+                  Forgot your password?
                 </ThemedText>
               </TouchableOpacity>
 
-              {/* Login Button */}
               <TouchableOpacity
                 style={[
                   styles.loginButton,
@@ -193,20 +189,18 @@ export default function LoginScreen() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ThemedText style={styles.loginButtonText}>Entrando...</ThemedText>
+                  <ThemedText style={styles.loginButtonText}>Logging in...</ThemedText>
                 ) : (
-                  <ThemedText style={styles.loginButtonText}>Entrar</ThemedText>
+                  <ThemedText style={styles.loginButtonText}>Log in</ThemedText>
                 )}
               </TouchableOpacity>
 
-              {/* Divider */}
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
-                <ThemedText style={styles.dividerText}>ou</ThemedText>
+                <ThemedText style={styles.dividerText}>or</ThemedText>
                 <View style={styles.dividerLine} />
               </View>
 
-              {/* Social Login Buttons */}
               <View style={styles.socialButtons}>
                 <TouchableOpacity style={styles.socialButton}>
                   <AntDesign name="google" size={20} color="#DB4437" />
@@ -220,14 +214,13 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Footer */}
             <View style={styles.footer}>
               <ThemedText style={styles.footerText}>
-                Não tem uma conta?{' '}
+                {`Don't have an account? `}
               </ThemedText>
               <TouchableOpacity onPress={goToSignup}>
                 <ThemedText style={[styles.footerLink, { color: Colors.light.tint }]}>
-                  Cadastre-se
+                  Sign up
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -237,6 +230,7 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

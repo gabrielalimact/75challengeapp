@@ -58,58 +58,58 @@ export default function SignupScreen() {
   };
 
   const formatBirthDate = (date: Date) => {
-    return date.toLocaleDateString('pt-BR');
+    return date.toLocaleDateString('en-US');
   };
 
   const handleSignup = async () => {
     router.replace('/(tabs)');
-    if (!name.trim()) {
-      Alert.alert('Erro', 'Por favor, insira seu nome.');
-      return;
-    }
 
-    if (!email.trim()) {
-      Alert.alert('Erro', 'Por favor, insira seu email.');
-      return;
-    }
+    // if (!name.trim()) {
+    //   Alert.alert('Error', 'Please enter your full name.');
+    //   return;
+    // }
 
-    if (!validateEmail(email)) {
-      Alert.alert('Erro', 'Por favor, insira um email válido.');
-      return;
-    }
+    // if (!email.trim()) {
+    //   Alert.alert('Error', 'Please enter your email.');
+    //   return;
+    // }
 
-    if (!phone.trim()) {
-      Alert.alert('Erro', 'Por favor, insira seu telefone.');
-      return;
-    }
+    // if (!validateEmail(email)) {
+    //   Alert.alert('Error', 'Please enter a valid email.');
+    //   return;
+    // }
 
-    if (!password.trim()) {
-      Alert.alert('Erro', 'Por favor, insira sua senha.');
-      return;
-    }
+    // if (!phone.trim()) {
+    //   Alert.alert('Error', 'Please enter your phone number.');
+    //   return;
+    // }
 
-    if (password.length < 6) {
-      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
-      return;
-    }
+    // if (!password.trim()) {
+    //   Alert.alert('Error', 'Please enter a password.');
+    //   return;
+    // }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
-      return;
-    }
+    // if (password.length < 6) {
+    //   Alert.alert('Error', 'Password must have at least 6 characters.');
+    //   return;
+    // }
+
+    // if (password !== confirmPassword) {
+    //   Alert.alert('Error', 'Passwords do not match.');
+    //   return;
+    // }
 
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     
-    if (age < 18 || (age === 18 && monthDiff < 0)) {
-      Alert.alert('Erro', 'Você deve ter pelo menos 18 anos para se cadastrar.');
-      return;
-    }
+    // if (age < 18 || (age === 18 && monthDiff < 0)) {
+    //   Alert.alert('Error', 'You must be at least 18 years old to sign up.');
+    //   return;
+    // }
 
     setIsLoading(true);
 
-    // Simular cadastro (aqui você adicionaria a lógica real de registro)
     setTimeout(() => {
       updateUser({
         name: name.trim(),
@@ -121,8 +121,8 @@ export default function SignupScreen() {
       completeWelcome();
       
       Alert.alert(
-        'Sucesso!', 
-        'Conta criada com sucesso! Bem-vindo ao 75 Challenge App!',
+        'Success!', 
+        'Account created successfully! Welcome to the 75 Challenge App!',
         [
           { text: 'OK', onPress: () => router.replace('/(tabs)') }
         ]
@@ -180,22 +180,22 @@ export default function SignupScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Logo e Título */}
+            {/* Logo and Title */}
             <View style={styles.logoContainer}>
               <View style={styles.logoIcon}>
                 <Text style={styles.logoEmoji}>🎯</Text>
               </View>
-              <Text style={styles.title}>Criar Conta</Text>
+              <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>
-                Junte-se a milhares de pessoas transformando suas vidas!
+                Join thousands of people transforming their lives!
               </Text>
             </View>
 
             {/* Form */}
             <View style={styles.form}>
-              {/* Name Input */}
+              {/* Name */}
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Nome Completo</ThemedText>
+                <ThemedText style={styles.label}>Full Name</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Ionicons 
                     name="person-outline" 
@@ -205,7 +205,7 @@ export default function SignupScreen() {
                   />
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Digite seu nome completo"
+                    placeholder="Enter your full name"
                     placeholderTextColor={Colors.light.gray}
                     value={name}
                     onChangeText={setName}
@@ -215,7 +215,7 @@ export default function SignupScreen() {
                 </View>
               </View>
 
-              {/* Email Input */}
+              {/* Email */}
               <View style={styles.inputContainer}>
                 <ThemedText style={styles.label}>Email</ThemedText>
                 <View style={styles.inputWrapper}>
@@ -227,7 +227,7 @@ export default function SignupScreen() {
                   />
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Digite seu email"
+                    placeholder="Enter your email"
                     placeholderTextColor={Colors.light.gray}
                     value={email}
                     onChangeText={setEmail}
@@ -238,9 +238,9 @@ export default function SignupScreen() {
                 </View>
               </View>
 
-              {/* Phone Input */}
+              {/* Phone */}
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Telefone</ThemedText>
+                <ThemedText style={styles.label}>Phone</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Ionicons 
                     name="call-outline" 
@@ -260,9 +260,9 @@ export default function SignupScreen() {
                 </View>
               </View>
 
-              {/* Birth Date Input */}
+              {/* Birth Date */}
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Data de Nascimento</ThemedText>
+                <ThemedText style={styles.label}>Birth Date</ThemedText>
                 <TouchableOpacity 
                   style={styles.inputWrapper}
                   onPress={openDatePicker}
@@ -280,9 +280,9 @@ export default function SignupScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* Password Input */}
+              {/* Password */}
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Senha</ThemedText>
+                <ThemedText style={styles.label}>Password</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Ionicons 
                     name="lock-closed-outline" 
@@ -292,7 +292,7 @@ export default function SignupScreen() {
                   />
                   <TextInput
                     style={[styles.textInput, styles.passwordInput]}
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Minimum 6 characters"
                     placeholderTextColor={Colors.light.gray}
                     value={password}
                     onChangeText={setPassword}
@@ -313,9 +313,9 @@ export default function SignupScreen() {
                 </View>
               </View>
 
-              {/* Confirm Password Input */}
+              {/* Confirm Password */}
               <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Confirmar Senha</ThemedText>
+                <ThemedText style={styles.label}>Confirm Password</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Ionicons 
                     name="lock-closed-outline" 
@@ -325,7 +325,7 @@ export default function SignupScreen() {
                   />
                   <TextInput
                     style={[styles.textInput, styles.passwordInput]}
-                    placeholder="Repita sua senha"
+                    placeholder="Repeat your password"
                     placeholderTextColor={Colors.light.gray}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
@@ -346,16 +346,16 @@ export default function SignupScreen() {
                 </View>
               </View>
 
-              {/* Terms and Conditions */}
+              {/* Terms */}
               <View style={styles.termsContainer}>
                 <ThemedText style={styles.termsText}>
-                  Ao criar uma conta, você concorda com nossos{' '}
+                  By creating an account, you agree to our{' '}
                   <ThemedText style={[styles.termsLink, { color: Colors.light.tint }]}>
-                    Termos de Uso
+                    Terms of Use
                   </ThemedText>
-                  {' '}e{' '}
+                  {' '}and{' '}
                   <ThemedText style={[styles.termsLink, { color: Colors.light.tint }]}>
-                    Política de Privacidade
+                    Privacy Policy
                   </ThemedText>
                 </ThemedText>
               </View>
@@ -371,9 +371,9 @@ export default function SignupScreen() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ThemedText style={styles.signupButtonText}>Criando conta...</ThemedText>
+                  <ThemedText style={styles.signupButtonText}>Creating account...</ThemedText>
                 ) : (
-                  <ThemedText style={styles.signupButtonText}>Criar Conta</ThemedText>
+                  <ThemedText style={styles.signupButtonText}>Sign Up</ThemedText>
                 )}
               </TouchableOpacity>
             </View>
@@ -381,11 +381,11 @@ export default function SignupScreen() {
             {/* Footer */}
             <View style={styles.footer}>
               <ThemedText style={styles.footerText}>
-                Já tem uma conta?{' '}
+                Already have an account?{' '}
               </ThemedText>
               <TouchableOpacity onPress={goToLogin}>
                 <ThemedText style={[styles.footerLink, { color: Colors.light.tint }]}>
-                  Entrar
+                  Log in
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -403,15 +403,15 @@ export default function SignupScreen() {
               <View style={styles.modalHeader}>
                 <TouchableOpacity onPress={cancelDateSelection}>
                   <ThemedText style={[styles.modalButton, styles.cancelButton]}>
-                    Cancelar
+                    Cancel
                   </ThemedText>
                 </TouchableOpacity>
                 <ThemedText style={styles.modalTitle}>
-                  Data de Nascimento
+                  Birth Date
                 </ThemedText>
                 <TouchableOpacity onPress={confirmDateSelection}>
                   <ThemedText style={[styles.modalButton, styles.confirmButton]}>
-                    Confirmar
+                    Confirm
                   </ThemedText>
                 </TouchableOpacity>
               </View>
@@ -435,6 +435,7 @@ export default function SignupScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

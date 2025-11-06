@@ -145,8 +145,8 @@ export default function ProfileScreen() {
 
   const handleClearCache = async () => {
     Alert.alert(
-      'Limpar Cache',
-      'Isso irá remover dados temporários e pode melhorar a performance. Seus dados de progresso serão mantidos.',
+      'Clear Cache',
+      'This will remove temporary data and may improve performance. Your progress data will be kept.',
       [
         {
           text: 'Cancelar',
@@ -156,7 +156,7 @@ export default function ProfileScreen() {
           text: 'Limpar',
           onPress: () => {
             resetHabitsForDay();
-            Alert.alert('Sucesso', 'Cache limpo com sucesso!');
+            Alert.alert('Done!', 'Cache cleared successfully.');
           },
         },
       ]
@@ -165,8 +165,8 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     Alert.alert(
-      'Confirmar Logout',
-      'Tem certeza que deseja sair?',
+      'Logout',
+      'Are you sure you want to log out?',
       [
         {
           text: 'Cancelar',
@@ -185,8 +185,8 @@ export default function ProfileScreen() {
               
               router.replace('/welcome');
             } catch (error) {
-              Alert.alert('Erro', 'Ocorreu um erro ao fazer logout. Tente novamente.');
-              console.error('Erro no logout:', error);
+              Alert.alert('Error', 'An error occurred while logging out. Please try again.');
+              console.error('Logout error:', error);
             }
           },
         },
