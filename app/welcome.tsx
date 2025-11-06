@@ -1,7 +1,17 @@
 import { AntDesign } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  interpolate,
+  SlideInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -53,10 +63,72 @@ const welcomeSlides: WelcomeSlide[] = [
 export default function WelcomeScreen() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { completeWelcome } = useUser();
+  
+  const slideAnimation = useSharedValue(0);
+  const iconScale = useSharedValue(1);
+  const textOpacity = useSharedValue(1);
+
+  const animatedSlideStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: interpolate(
+            slideAnimation.value,
+            [0, 1],
+            [0, -width * 0.1]
+          ),
+        },
+      ],
+      opacity: interpolate(
+        slideAnimation.value,
+        [0, 0.5, 1],
+        [1, 0.7, 1]
+      ),
+    };
+  });
+
+  const animatedIconStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: iconScale.value },
+        {
+          rotateY: interpolate(
+            slideAnimation.value,
+            [0, 1],
+            [0, 360]
+          ) + 'deg',
+        },
+      ],
+    };
+  });
+
+  const animatedTextStyle = useAnimatedStyle(() => {
+    return {
+      opacity: textOpacity.value,
+      transform: [
+        {
+          translateY: interpolate(
+            textOpacity.value,
+            [0, 1],
+            [20, 0]
+          ),
+        },
+      ],
+    };
+  });
 
   const nextSlide = () => {
     if (currentSlide < welcomeSlides.length - 1) {
-      setCurrentSlide(currentSlide + 1);
+      slideAnimation.value = withTiming(1, { duration: 300 });
+      textOpacity.value = withTiming(0, { duration: 200 });
+      iconScale.value = withSpring(0.8, { damping: 15 });
+      
+      setTimeout(() => {
+        setCurrentSlide(currentSlide + 1);
+        slideAnimation.value = withTiming(0, { duration: 300 });
+        textOpacity.value = withTiming(1, { duration: 400 });
+        iconScale.value = withSpring(1, { damping: 15 });
+      }, 150);
     } else {
       handleGetStarted();
     }
@@ -64,7 +136,16 @@ export default function WelcomeScreen() {
 
   const prevSlide = () => {
     if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
+      slideAnimation.value = withTiming(-1, { duration: 300 });
+      textOpacity.value = withTiming(0, { duration: 200 });
+      iconScale.value = withSpring(0.8, { damping: 15 });
+      
+      setTimeout(() => {
+        setCurrentSlide(currentSlide - 1);
+        slideAnimation.value = withTiming(0, { duration: 300 });
+        textOpacity.value = withTiming(1, { duration: 400 });
+        iconScale.value = withSpring(1, { damping: 15 });
+      }, 150);
     }
   };
 
@@ -86,17 +167,37 @@ export default function WelcomeScreen() {
   const currentSlideData = welcomeSlides[currentSlide];
 
   const goToLastSlide = () => {
-    setCurrentSlide(welcomeSlides.length - 1);
+    slideAnimation.value = withTiming(1, { duration: 400 });
+    textOpacity.value = withTiming(0, { duration: 300 });
+    iconScale.value = withSpring(0.5, { damping: 15 });
+    
+    setTimeout(() => {
+      setCurrentSlide(welcomeSlides.length - 1);
+      slideAnimation.value = withTiming(0, { duration: 400 });
+      textOpacity.value = withTiming(1, { duration: 500 });
+      iconScale.value = withSpring(1, { damping: 15 });
+    }, 200);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ThemedView style={[styles.content, { backgroundColor: currentSlideData.color + '10' }]}>
+      <LinearGradient
+        colors={[
+          currentSlideData.color + '08',
+          currentSlideData.color + '12',
+          currentSlideData.color + '06'
+        ]}
+        style={StyleSheet.absoluteFillObject}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <ThemedView style={[styles.content, { backgroundColor: 'transparent' }]}>
         <View style={styles.header}>
           <View style={styles.indicators}>
             {welcomeSlides.map((_, index) => (
-              <View
+              <Animated.View
                 key={index}
+                entering={FadeIn.delay(index * 100)}
                 style={[
                   styles.indicator,
                   {
@@ -119,41 +220,57 @@ export default function WelcomeScreen() {
         </View>
 
         {/* Conteúdo principal */}
-        <View style={styles.slideContent}>
-          <View style={[styles.iconContainer, { backgroundColor: currentSlideData.color + '20' }]}>
+        <Animated.View style={[styles.slideContent, animatedSlideStyle]}>
+          <Animated.View 
+            style={[
+              styles.iconContainer, 
+              { backgroundColor: currentSlideData.color + '20' },
+              animatedIconStyle
+            ]}
+          >
             <Text style={styles.iconEmoji}>{currentSlideData.icon}</Text>
-          </View>
+          </Animated.View>
 
-          <View style={styles.textContainer}>
+          <Animated.View style={[styles.textContainer, animatedTextStyle]}>
             <Text style={styles.title}>{currentSlideData.title}</Text>
             <Text style={[styles.subtitle, { color: currentSlideData.color }]}>
               {currentSlideData.subtitle}
             </Text>
             <Text style={styles.description}>{currentSlideData.description}</Text>
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
 
         {/* Footer */}
         {currentSlide === welcomeSlides.length - 1 ? (
-          <View style={styles.authFooter}>
-            <TouchableOpacity
-              style={[styles.signupButton, { backgroundColor: currentSlideData.color }]}
-              onPress={handleSignup}
-            >
-              <ThemedText style={styles.authButtonText}>Criar Conta</ThemedText>
-            </TouchableOpacity>
+          <Animated.View 
+            style={styles.authFooter}
+            entering={FadeIn.delay(300)}
+          >
+            <Animated.View entering={SlideInRight.delay(400)}>
+              <TouchableOpacity
+                style={[styles.signupButton, { backgroundColor: currentSlideData.color }]}
+                onPress={handleSignup}
+              >
+                <ThemedText style={styles.authButtonText}>Criar Conta</ThemedText>
+              </TouchableOpacity>
+            </Animated.View>
             
-            <TouchableOpacity
-              style={[styles.loginButton, { borderColor: currentSlideData.color }]}
-              onPress={handleLogin}
-            >
-              <ThemedText style={[styles.loginButtonText, { color: currentSlideData.color }]}>
-                Já tenho conta
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
+            <Animated.View entering={SlideInRight.delay(500)}>
+              <TouchableOpacity
+                style={[styles.loginButton, { borderColor: currentSlideData.color }]}
+                onPress={handleLogin}
+              >
+                <ThemedText style={[styles.loginButtonText, { color: currentSlideData.color }]}>
+                  Já tenho conta
+                </ThemedText>
+              </TouchableOpacity>
+            </Animated.View>
+          </Animated.View>
         ) : (
-          <View style={styles.footer}>
+          <Animated.View 
+            style={styles.footer}
+            entering={FadeIn.delay(400)}
+          >
             <TouchableOpacity
               style={[styles.navButton, { opacity: currentSlide === 0 ? 0.3 : 1 }]}
               onPress={prevSlide}
@@ -163,21 +280,13 @@ export default function WelcomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.nextButton, { backgroundColor: currentSlideData.color }]}
-              onPress={nextSlide}
-            >
-              <ThemedText style={styles.nextButtonText}>Próximo</ThemedText>
-              <AntDesign name="right" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
               style={[styles.navButton, { opacity: currentSlide === welcomeSlides.length - 1 ? 0.3 : 1 }]}
               onPress={nextSlide}
               disabled={currentSlide === welcomeSlides.length - 1}
             >
               <AntDesign name="right" size={24} color={currentSlideData.color} />
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         )}
       </ThemedView>
     </SafeAreaView>
@@ -211,11 +320,21 @@ const styles = StyleSheet.create({
   skipButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   skipText: {
     fontSize: 16,
     color: '#666666',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   slideContent: {
     flex: 1,
@@ -223,93 +342,154 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   iconEmoji: {
-    fontSize: 58,
+    fontSize: 64,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   textContainer: {
     alignItems: 'center',
-    maxWidth: width * 0.8,
+    maxWidth: width * 0.85,
+    paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '300',
     color: '#333333',
     textAlign: 'center',
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 30,
+    fontSize: 34,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 24,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+    letterSpacing: 0.5,
   },
   description: {
     fontSize: 18,
     color: '#666666',
     textAlign: 'center',
-    lineHeight: 26,
-    maxWidth: width * 0.75,
+    lineHeight: 28,
+    maxWidth: width * 0.8,
+    fontWeight: '400',
+    letterSpacing: 0.3,
   },
   footer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 32,
   },
   navButton: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 24,
+    borderRadius: 26,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   nextButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 28,
-    gap: 8,
-    minWidth: 140,
+    paddingHorizontal: 36,
+    paddingVertical: 18,
+    borderRadius: 30,
+    gap: 10,
+    minWidth: 160,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   nextButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   authFooter: {
-    paddingVertical: 20,
-    paddingHorizontal: 4,
-    gap: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 8,
+    gap: 18,
   },
   signupButton: {
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 16,
+    paddingVertical: 18,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   authButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   loginButton: {
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 16,
+    paddingVertical: 18,
     alignItems: 'center',
     borderWidth: 2,
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   loginButtonText: {
     fontSize: 18,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
   skipAuthButton: {
     alignItems: 'center',
