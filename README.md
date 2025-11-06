@@ -70,13 +70,19 @@ A comprehensive React Native app designed to help users complete the 75 Hard Cha
 
 ## 📱 Screenshots
 
-| Home Screen | Challenge Calendar | Habits Configuration |
-|-------------|-------------------|---------------------|
-| 🏠 Daily overview with progress | 📅 Interactive challenge calendar | ⚙️ Customize your daily habits |
+<div align="center">
 
-| Profile Settings | Notifications | Challenge Modal |
-|-----------------|---------------|-----------------|
-| 👤 Manage profile and settings | 🔔 Configure notifications | 🎯 Start/manage challenge |
+| Home Screen | Habit List | Add Habits |
+|:-----------:|:----------:|:----------:|
+| <img src="./assets/images/prints/home.jpeg" width="250" alt="Home Screen" /> | <img src="./assets/images/prints/habit-list.jpeg" width="250" alt="Habit List" /> | <img src="./assets/images/prints/add-habits.jpeg" width="250" alt="Add Habits" /> |
+| *Daily overview with challenge progress* | *Complete list of configured habits* | *Interface to configure new habits* |
+
+| Habits Completed | User Profile |
+|:----------------:|:------------:|
+| <img src="./assets/images/prints/habits-done.jpeg" width="250" alt="Habits Done" /> | <img src="./assets/images/prints/profile.jpeg" width="250" alt="Profile" /> |
+| *View of habits marked as completed* | *Profile screen with personal information* |
+
+</div>
 
 <!-- ## 🏗️ Project Structure
 
