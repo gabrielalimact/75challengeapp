@@ -68,17 +68,11 @@ export default function HomeScreen() {
     const habitsStateKey = `${challengeDay}-${JSON.stringify(dayHabits.map(h => ({ id: h.id, completed: h.isCompleted })))}`;
     
     if (lastHabitsStateRef.current !== habitsStateKey) {
-      lastHabitsStateRef.current = habitsStateKey;
-      
-      console.log('Debug - Challenge Day:', challengeDay);
-      console.log('Debug - All Habits Completed:', allHabitsCompleted);
-      console.log('Debug - Is Day Currently Completed:', isDayCurrentlyCompleted);
+      lastHabitsStateRef.current = habitsStateKey
       
       if (allHabitsCompleted && !isDayCurrentlyCompleted) {
-        console.log('Debug - Marking day completed:', challengeDay);
         markDayCompleted(challengeDay);
       } else if (!allHabitsCompleted && isDayCurrentlyCompleted) {
-        console.log('Debug - Marking day incomplete:', challengeDay);
         markDayIncomplete(challengeDay);
       }
     }
@@ -177,12 +171,12 @@ export default function HomeScreen() {
           <View style={styles.headerLeft}>
             <View style={styles.profileHeader}>
               <Image
-                source={{ uri: user.profileImage }}
+                source={user.profileImage ? { uri: user.profileImage } : require('@/assets/images/avatar.jpg')}
                 style={styles.profileImage}
               />
               <View>
             <ThemedText type="default" style={styles.greetingText}>
-              {getGreeting()}
+              {getGreeting()},
             </ThemedText>
             <ThemedText type="title" style={styles.welcomeText}>
               {user.name.split(' ')[0]}

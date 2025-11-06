@@ -44,7 +44,6 @@ export const ChallengeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
       }
     } catch (error) {
-      console.log('Erro ao carregar dados do desafio:', error);
       setChallengeData({
         startDate: null,
         challengeDays: 75,

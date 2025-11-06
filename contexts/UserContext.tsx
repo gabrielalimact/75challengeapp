@@ -107,8 +107,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFirstTime(true);
 
       await verifyDataCleared();
-
-      console.log('✅ Logout realizado com sucesso - todos os dados foram limpos');
     } catch (error) {
       console.error('❌ Erro durante o logout:', error);
       throw error;
